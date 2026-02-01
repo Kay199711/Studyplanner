@@ -2,7 +2,11 @@
 
 ### Running the Frontend
 ```bash
+npm install
 
+cp .env.example .env
+
+npm run dev
 ```
 
 ### Running the Backend
