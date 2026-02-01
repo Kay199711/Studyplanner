@@ -1,1 +1,1 @@
-Study planner for build
+Study planner for BUILD
