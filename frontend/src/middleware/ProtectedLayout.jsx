@@ -1,7 +1,7 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function RedirectIfAuthenticated({ children }) {
+export default function ProtectedLayout() {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -12,10 +12,8 @@ export default function RedirectIfAuthenticated({ children }) {
     );
   }
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
-  return children;
+  return <Outlet />;
 }
 
