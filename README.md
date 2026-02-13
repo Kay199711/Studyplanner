@@ -2,6 +2,8 @@
 
 ### Running the Frontend
 ```bash
+cd frontend
+
 npm install
 
 cp .env.example .env
@@ -12,6 +14,8 @@ npm run dev
 ### Running the Backend
 
 ```bash
+cd backend
+
 npm install
 
 cp .env.example .env
