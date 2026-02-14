@@ -27,3 +27,7 @@ npm run prisma:migrate
 
 npm run dev
 ```
+
+### Before Contributing
+
+- Read [CONTRIBUTING.md](CONTRIBUTING.md)
