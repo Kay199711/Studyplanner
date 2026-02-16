@@ -1,4 +1,9 @@
-# Study planner for BUILD
+# Study planner - INIT BUILD project
+
+### Tech stack
+- **Frontend**: React + Tailwind CSS
+- **Backend**: Express
+- **Database**: SQLite + Prisma ORM
 
 ### Running the Frontend
 ```bash
@@ -12,7 +17,6 @@ npm run dev
 ```
 
 ### Running the Backend
-
 ```bash
 cd backend
 
