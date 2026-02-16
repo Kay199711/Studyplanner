@@ -28,6 +28,7 @@ cp .env.example .env
 npm run prisma:generate
 # Run database migrations
 npm run prisma:migrate
+# This creates /backend/prisma/db.sqlite
 
 npm run dev
 ```
