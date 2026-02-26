@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function PublicLayout() {
+export default function ProtectedRoute({ requireAuth = true }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -12,7 +12,13 @@ export default function PublicLayout() {
     );
   }
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (requireAuth && !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!requireAuth && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return <Outlet />;
 }
