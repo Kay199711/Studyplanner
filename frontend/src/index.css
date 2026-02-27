@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-primary-light: #FFFFFF;
+  --color-primary-dark: #0A0A0A;
+  --color-secondary-light: #C3D4DF;
+  --color-secondary-dark: #053840;
+  --color-highlight-light: #969696;
+  --color-highlight-dark: #2F2F2F;
+}
+
 html,
 body,
 #root {
