@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@layer base {
+  :root {
+    --color-primary: 219 234 254;
+    --color-secondary: 229 231 235;
+    --color-hover: 209 213 219;
+  }
+
+  .dark {
+    --color-primary: 30 41 59;
+    --color-secondary: 38 38 38;
+    --color-hover: 38 38 38;
+  }
+}
+
 html,
 body,
 #root {
