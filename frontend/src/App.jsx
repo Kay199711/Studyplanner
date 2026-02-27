@@ -4,8 +4,12 @@ import ProtectedRoute from './middleware/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
+import { ThemeProvider } from './context/ThemeContext';
+
+
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -25,6 +29,7 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
