@@ -1,23 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './middleware/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Calendar from './pages/Calendar';
 import Notes from './pages/Notes';
-import { useState, useEffect } from 'react';
 
 function App() {
-  const [isDark, setIsDark] = useState(localStorage.getItem('darkMode') === "true");
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', isDark);
-  }, [isDark]);
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -40,6 +32,7 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
