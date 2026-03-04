@@ -5,7 +5,9 @@ import registerRoutes from './routes.js';
 const app = express();
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map((u) => u.trim())
+    : true, // in dev, allow any origin if FRONTEND_URL not set
   credentials: true,
   optionsSuccessStatus: 200
 };
