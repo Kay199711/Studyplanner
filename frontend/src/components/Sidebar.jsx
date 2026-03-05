@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
+import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 
-export default function Sidebar() {
+export default function Sidebar({ isDark, setIsDark }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -97,6 +98,17 @@ export default function Sidebar() {
               </Link>
             </nav>
             <nav className="border-t border-gray-200 pt-2 space-y-2">
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-300"
+                aria-label="Toggle dark mode"
+              >
+                {isDark ? (
+                  <HiOutlineSun className="w-5 h-5" />
+                ) : (
+                  <HiOutlineMoon className="w-5 h-5" />
+                )} Toggle Theme
+              </button>
               <button
                 className="w-full text-left block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-300"
               >

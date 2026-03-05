@@ -2,14 +2,14 @@ import { useLocation, Outlet } from 'react-router-dom';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import Sidebar from './components/Sidebar';
 
-export default function Layout() {
+export default function Layout({ isDark, setIsDark }) {
   const location = useLocation();
 
   return (
     <div className="h-screen overflow-hidden">
       <Group orientation="horizontal">
 
-        <Sidebar />
+        <Sidebar isDark={isDark} setIsDark={setIsDark} />
 
         <Separator className="w-0.5 bg-gray-300 hover:bg-blue-500 active:bg-blue-600 transition-colors cursor-col-resize" />
 
@@ -28,7 +28,7 @@ export default function Layout() {
             </div>
           </div>
         </Panel>
-        
+
       </Group>
     </div>
   );

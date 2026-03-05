@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './middleware/ProtectedRoute';
@@ -9,6 +10,22 @@ import Layout from './Layout';
 
 
 function App() {
+  const [isDark, setIsDark] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme !== null ? savedTheme === "light" : true; // Default to light mode
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add("light");
+      localStorage.setItem("theme", "light");
+    } else {
+      root.classList.remove("light");
+      localStorage.setItem("theme", "dark");
+    }
+  }, [isDark]);
+
   return (
     <AuthProvider>
       <Router>
@@ -22,7 +39,7 @@ function App() {
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute requireAuth={true} />}>
-            <Route element={<Layout />}>
+            <Route element={<Layout isDark={isDark} setIsDark={setIsDark} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/resources" element={<Resources />} />
