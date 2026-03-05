@@ -12,17 +12,17 @@ import Layout from './Layout';
 function App() {
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme !== null ? savedTheme === "light" : true; // Default to light mode
+    return savedTheme === "dark";
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
-      root.classList.add("light");
-      localStorage.setItem("theme", "light");
-    } else {
-      root.classList.remove("light");
+      root.classList.add("dark");
       localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [isDark]);
 

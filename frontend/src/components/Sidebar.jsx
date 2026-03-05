@@ -42,22 +42,22 @@ export default function Sidebar({ isDark, setIsDark }) {
         setSidebarOpen(size.asPercentage > 5);
       }}
     >
-      <div className="h-full bg-white flex flex-col">
+      <div className="h-full bg-primary dark:bg-primary-dark flex flex-col">
         {/* Sidebar Header */}
-        <div className={`bg-blue-100 h-12 flex items-center border-b border-gray-200 ${
+        <div className={`h-12 flex items-center border-b border-brd-primary dark:border-brd-primary-dark ${
           sidebarOpen 
             ? 'justify-between pl-7 pr-4' 
             : 'justify-center px-2'
         }`}>
-          {sidebarOpen && <h1 className="text-gray-900 font-medium">Study Planner</h1>}
+          {sidebarOpen && <h1 className="font-medium">Study Planner</h1>}
           <button 
-            className="hover:cursor-pointer hover:bg-gray-300 rounded-sm p-0.5" 
+            className="hover:cursor-pointer hover:bg-hover hover:dark:bg-hover-dark rounded-sm p-0.5" 
             onClick={toggleSidebar}
           >
             {sidebarOpen ? (
-              <TbLayoutSidebarLeftCollapse className="w-6 h-6" />
+              <TbLayoutSidebarLeftCollapse className="w-6 h-6  text-icon dark:text-icon-dark" />
             ) : (
-              <TbLayoutSidebarLeftExpand className="w-6 h-6" />
+              <TbLayoutSidebarLeftExpand className="w-6 h-6 text-icon dark:text-icon-dark" />
             )}
           </button>
         </div>
@@ -70,8 +70,8 @@ export default function Sidebar({ isDark, setIsDark }) {
                 to="/dashboard"
                 className={`block px-3 py-2 rounded-md ${
                   isActive('/dashboard') 
-                    ? 'bg-gray-300' 
-                    : 'hover:bg-gray-300'
+                    ? 'bg-hover dark:bg-hover-dark' 
+                    : 'hover:bg-hover hover:dark:bg-hover-dark'
                 }`}
               >
                 Dashboard
@@ -80,8 +80,8 @@ export default function Sidebar({ isDark, setIsDark }) {
                 to="/calendar"
                 className={`block px-3 py-2 rounded-md ${
                   isActive('/calendar') 
-                    ? 'bg-gray-300' 
-                    : 'hover:bg-gray-300'
+                    ? 'bg-hover dark:bg-hover-dark' 
+                    : 'hover:bg-hover hover:dark:bg-hover-dark'
                 }`}
               >
                 Calendar
@@ -90,27 +90,27 @@ export default function Sidebar({ isDark, setIsDark }) {
                 to="/resources"
                 className={`block px-3 py-2 rounded-md ${
                   isActive('/resources') 
-                    ? 'bg-gray-300' 
-                    : 'hover:bg-gray-300'
+                    ? 'bg-hover dark:bg-hover-dark' 
+                    : 'hover:bg-hover hover:dark:bg-hover-dark'
                 }`}
               >
                 Resources
               </Link>
             </nav>
-            <nav className="border-t border-gray-200 pt-2 space-y-2">
+            <nav className="border-t border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
               <button
                 onClick={() => setIsDark(!isDark)}
-                className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-300"
+                className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
                 aria-label="Toggle dark mode"
               >
                 {isDark ? (
-                  <HiOutlineSun className="w-5 h-5" />
+                  <HiOutlineSun className="w-5 h-5 text-icon dark:text-icon-dark" />
                 ) : (
-                  <HiOutlineMoon className="w-5 h-5" />
+                  <HiOutlineMoon className="w-5 h-5 text-icon dark:text-icon-dark" />
                 )} Toggle Theme
               </button>
               <button
-                className="w-full text-left block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-300"
+                className="w-full text-left block px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
               >
                 Settings
               </button>
