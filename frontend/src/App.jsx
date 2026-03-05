@@ -1,8 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './middleware/ProtectedRoute';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/dashboard/Dashboard';
+import Calendar from './pages/calendar/Calendar';
+import Resources from './pages/resources/Resources';
+import Login from './pages/auth/Login'
+import Layout from './Layout';
+
 
 function App() {
   return (
@@ -18,7 +22,11 @@ function App() {
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute requireAuth={true} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/resources" element={<Resources />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
