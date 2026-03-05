@@ -7,7 +7,7 @@ export default function ProtectedRoute({ requireAuth = true }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-txt-primary dark:text-txt-primary-dark">Loading...</div>
       </div>
     );
   }
