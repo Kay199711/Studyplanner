@@ -6,6 +6,7 @@ import { HiOutlineMoon, HiOutlineSun, HiOutlineUser } from 'react-icons/hi';
 export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
     const navigate = useNavigate();
 
+
   useEffect(() => {
     if (!isOpen) return undefined;
 
