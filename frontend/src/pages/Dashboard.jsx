@@ -48,6 +48,7 @@ export default function Dashboard() {
           }}
         >
           <div className="h-full bg-white dark:bg-gray-800 flex flex-col">
+            
             {/* Sidebar Header */}
             <div className={`bg-blue-100 dark:bg-gray-700 h-12 flex items-center border-b border-gray-200 dark:border-gray-600 ${
               sidebarOpen 
