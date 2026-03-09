@@ -13,3 +13,21 @@ See `.env.example` for all available variables:
 - `FRONTEND_URL` - Frontend URL for CORS
 - `JWT_SECRET` - Secret for JWT tokens
 
+## Folder Structure
+
+```
+backend/
+├── src/
+│   ├── index.js               # 🚀 Server entry point
+│   ├── app.js                 # ⚙️ Express config 
+│   ├── routes.js              # 🛣️ All route definitions
+│   ├── config/
+│   │   └── database.js        # 🗄️ Database connection
+│   └── controllers/
+│       ├── index.js           # 📦 Barrel export
+│       └── authController.js  # 🔐 Auth logic
+├── prisma/
+│   ├── schema.prisma          # 📋 Database schema
+│   └── seed.js                # 🌱 Seed data
+└── package.json
+```

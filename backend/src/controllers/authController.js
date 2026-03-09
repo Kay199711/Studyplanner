@@ -1,8 +1,8 @@
-const bcrypt = require('bcryptjs');
-const prisma = require('../config/database');
+import bcrypt from 'bcryptjs';
+import prisma from '../config/database.js';
 
 // Login
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -49,7 +49,7 @@ exports.login = async (req, res, next) => {
 };
 
 // Logout
-exports.logout = async (req, res) => {
+export const logout = async (req, res) => {
   res.json({
     success: true,
     message: 'Logged out successfully'

@@ -1,0 +1,25 @@
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+export default function ProtectedRoute({ requireAuth = true }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-txt-primary dark:text-txt-primary-dark">Loading...</div>
+      </div>
+    );
+  }
+
+  if (requireAuth && !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!requireAuth && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
+}
+
