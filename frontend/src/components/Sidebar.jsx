@@ -4,12 +4,14 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
+import Settings from './Settings';
 
 export default function Sidebar({ isDark, setIsDark }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const sidebarRef = useRef(null);
 
   const handleLogout = async () => {
@@ -110,6 +112,7 @@ export default function Sidebar({ isDark, setIsDark }) {
                 )} Toggle Theme
               </button>
               <button
+                onClick={() => setIsSettingsOpen(true)}
                 className="w-full text-left block px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
               >
                 Settings
@@ -124,6 +127,12 @@ export default function Sidebar({ isDark, setIsDark }) {
           </div>
         )}
       </div>
+      <Settings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        isDark={isDark}
+        setIsDark={setIsDark}
+        />
     </Panel>
   );
 }
