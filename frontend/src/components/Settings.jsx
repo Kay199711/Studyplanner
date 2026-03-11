@@ -25,7 +25,7 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
       role="presentation"
     >
       <div
-        className="animate-fade-in w-full max-w-md rounded-lg border border-brd-primary bg-primary p-5 shadow-xl dark:border-brd-primary-dark dark:bg-primary-dark"
+        className="animate-fade-in w-full max-w-2xl h-[70vh]  rounded-lg border border-brd-primary bg-primary p-5 shadow-xl dark:border-brd-primary-dark dark:bg-primary-dark"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
