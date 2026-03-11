@@ -9,11 +9,14 @@ import { MdOutlineSettings } from "react-icons/md";
 import { HiOutlineLogout } from "react-icons/hi";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
+import { useState } from 'react';
+import Settings from './Settings';
 
 export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -111,8 +114,8 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 )} Toggle Theme
               </button>
               <button
+                onClick={() => setIsSettingsOpen(true)}
                 className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-                onClick={()=>{}}
               >
                 <MdOutlineSettings className='w-5 h-5 text-icon dark:text-icon-dark '/>
                 Settings
@@ -189,6 +192,12 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
               </div>
         )}
       </div>
+      <Settings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        isDark={isDark}
+        setIsDark={setIsDark}
+        />
     </Panel>
   );
 }

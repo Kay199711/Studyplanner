@@ -7,7 +7,7 @@ import Calendar from './pages/calendar/Calendar';
 import Resources from './pages/resources/Resources';
 import Login from './pages/auth/Login'
 import Layout from './Layout';
-
+import Profile from './components/Profile';
 
 function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -43,6 +43,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/resources" element={<Resources />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
 
