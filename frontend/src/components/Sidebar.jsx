@@ -1,10 +1,9 @@
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
-import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
+import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 import { PiBooks } from "react-icons/pi";
-import { GrResources } from "react-icons/gr";
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { MdOutlineSettings } from "react-icons/md";
 import { HiOutlineLogout } from "react-icons/hi";
@@ -49,13 +48,13 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
             <h1 className="font-medium">Study Planner</h1>
           </div>
           )}
-          {!sidebarOpen && <BiBookReader className='w-8 h-8 text-icon dark:text-icon-dark justify-center' />}
+          {!sidebarOpen && <BiBookReader className='w-6 h-6 text-icon dark:text-icon-dark justify-center' />}
           <button 
             className="hover:cursor-pointer hover:bg-hover hover:dark:bg-hover-dark rounded-sm p-0.5" 
             onClick={toggleSidebar}
           >
             {sidebarOpen && (
-              <TbLayoutSidebarLeftCollapse className="w-6 h-6  text-icon dark:text-icon-dark" />
+              <TbLayoutSidebarLeftCollapse className="w-6 h-6 text-icon dark:text-icon-dark" />
             )}
           </button>
         </div>
@@ -98,7 +97,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 Resources
               </Link>
             </nav>
-            <nav className="border-t border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
+            <nav className="border-t-2 border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
               <button
                 onClick={() => setIsDark(!isDark)}
                 className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
@@ -127,64 +126,63 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
             </nav>
           </div>
          ) : (
-
               /* Minimized Sidebar Navigation */
               <div className="flex-1 flex flex-col items-center gap-4 pt-4">
                 <nav className='flex-1 flex flex-col items-center gap-4 pt-4'>
                 <Link to="/dashboard" 
-                  className={`p-2 rounded-md cursor-pointer ${
+                  className={`p-1.5 rounded-md cursor-pointer ${
                     isActive('/dashboard')
                     ? 'bg-hover dark:bg-hover-dark'
                     : 'hover:bg-hover hover:dark:bg-hover-dark'
                 }`}
                 >
-                  <LuLayoutDashboard className='w-8 h-8 text-icon dark:text-icon-dark' />
+                  <LuLayoutDashboard className='w-6 h-6 text-icon dark:text-icon-dark' />
                 </Link>
                 <Link to="/calendar"
-                  className={`p-2 rounded-md cursor-pointer ${
+                  className={`p-1.5 rounded-md cursor-pointer ${
                     isActive('/calendar')
                     ? 'bg-hover dark:bg-hover-dark'
                     : 'hover:bg-hover hover:dark:bg-hover-dark'
                   }`}
                 >
-                <MdOutlineCalendarMonth className='w-8 h-8 text-icon dark:text-icon-dark' />
+                  <MdOutlineCalendarMonth className='w-6 h-6 text-icon dark:text-icon-dark' />
                 </Link>
                 <Link to="/resources" 
-                  className={`p-2 rounded-md cursor-pointer ${
+                  className={`p-1.5 rounded-md cursor-pointer ${
                     isActive('/resources')
                     ? 'bg-hover dark:bg-hover-dark'
                     : 'hover:bg-hover hover:dark:bg-hover-dark'
                   }`}
                 >
-                <PiBooks className='w-8 h-8 text-icon dark:text-icon-dark' />
+                  <PiBooks className='w-6 h-6 text-icon dark:text-icon-dark' />
                 </Link>
                 </nav>
 
-                <nav className= 'border-t border-brd-primary dark:border-brd-primary pt-2 flex flex-col gap-4 items-center'>
+                <nav className= 'border-t-2 border-brd-primary dark:border-brd-primary-dark pt-2 flex flex-col gap-4 items-center'>
                   <button 
                     title = "Toggle Dark Mode"
-                    className="p-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
+                    className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
                     onClick={() => setIsDark(!isDark)}
                     >
                     {isDark ? (
-                      <HiOutlineSun className='w-8 h-8 text-icon dark:text-icon-dark'/>
+                      <HiOutlineSun className='w-6 h-6 text-icon dark:text-icon-dark'/>
                     ) : (
-                      <HiOutlineMoon className='w-8 h-8 text-icon dark:text-icon-dark'/>
+                      <HiOutlineMoon className='w-6 h-6 text-icon dark:text-icon-dark'/>
                     )}
                   </button>
                   <button
                     title="Settings"
-                    className="p-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
+                    className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
                     onClick={() => {}}
                   >
-                    <MdOutlineSettings className='w-8 h-8 text-icon dark:text-icon-dark' />
+                    <MdOutlineSettings className='w-6 h-6 text-icon dark:text-icon-dark' />
                   </button>
                   <button
-                  title="Logout"
-                  className='w-14 px-4 py-2 bg-red-600 text-white rounded-md hover:cursor-pointer hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4'
-                  onClick={handleLogout}
+                    title="Logout"
+                    className='p-1.5 bg-red-600 text-white rounded-md hover:cursor-pointer hover:bg-red-700 mb-4'
+                    onClick={handleLogout}
                   >
-                  <HiOutlineLogout className='w-8 h-8 dark:text-icon-dark'/>
+                    <HiOutlineLogout className='w-6 h-6 dark:text-icon-dark'/>
                   </button>
                 
                 </nav>
