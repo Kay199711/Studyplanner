@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
-import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
+import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 import { PiBooks } from "react-icons/pi";
 import { MdOutlineCalendarMonth } from "react-icons/md";
@@ -26,7 +26,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
   const isActive = (path) => location.pathname === path;
 
   return (
-    <Panel 
+    <Panel
       panelRef={sidebarRef}
       defaultSize="15%" 
       minSize="15%" 
@@ -39,7 +39,6 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
       }}
     >
       <div className="h-full bg-primary dark:bg-primary-dark flex flex-col">
-        {/* Sidebar Header */}
         <div className={`h-12 flex items-center border-b border-brd-primary dark:border-brd-primary-dark ${
           sidebarOpen 
             ? 'justify-between pl-7 pr-4' 
@@ -100,7 +99,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 Resources
               </Link>
             </nav>
-            <nav className="border-t-2 border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
+            <nav className="border-t border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
               <button
                 onClick={() => setIsDark(!isDark)}
                 className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
@@ -197,7 +196,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
         onClose={() => setIsSettingsOpen(false)}
         isDark={isDark}
         setIsDark={setIsDark}
-        />
+      />
     </Panel>
   );
 }
