@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+<<<<<<< HEAD
 import {useNavigate} from 'react-router-dom';
 import { IoCloseSharp } from "react-icons/io5";
 import { HiOutlineMoon, HiOutlineSun, HiOutlineUser } from 'react-icons/hi';
@@ -6,6 +7,12 @@ import { HiOutlineMoon, HiOutlineSun, HiOutlineUser } from 'react-icons/hi';
 export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
     const navigate = useNavigate();
 
+=======
+import { IoCloseSharp } from "react-icons/io5";
+import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
+
+export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
+>>>>>>> 63d28243464c681bd62870e527834b520c0355da
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -21,11 +28,14 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
 
   if (!isOpen) return null;
 
+<<<<<<< HEAD
   const handleProfileClick = () => {
     onClose();
     navigate('/profile');
   }
 
+=======
+>>>>>>> 63d28243464c681bd62870e527834b520c0355da
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4"
@@ -33,7 +43,11 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
       role="presentation"
     >
       <div
+<<<<<<< HEAD
         className="animate-fade-in w-full max-w-md rounded-lg border border-brd-primary bg-primary p-5 shadow-xl dark:border-brd-primary-dark dark:bg-primary-dark"
+=======
+        className="animate-fade-in w-full max-w-2xl h-[70vh]  rounded-lg border border-brd-primary bg-primary p-5 shadow-xl dark:border-brd-primary-dark dark:bg-primary-dark"
+>>>>>>> 63d28243464c681bd62870e527834b520c0355da
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -52,6 +66,7 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
 
         <div className="space-y-2 text-center">
           <button
+<<<<<<< HEAD
             onClick={handleProfileClick}
             className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 hover:bg-hover dark:hover:bg-hover-dark"
           >
@@ -59,6 +74,8 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
             Profile
             </button>
           <button
+=======
+>>>>>>> 63d28243464c681bd62870e527834b520c0355da
             onClick={() => setIsDark(!isDark)}
             className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 hover:bg-hover dark:hover:bg-hover-dark"
           >
@@ -72,4 +89,8 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 63d28243464c681bd62870e527834b520c0355da

@@ -21,31 +21,25 @@ export default function Sidebar({ isDark, setIsDark }) {
 
   const toggleSidebar = () => {
     const panel = sidebarRef.current;
-    if (panel) {
-      if (panel.isCollapsed()) {
-        panel.expand();
-      } else {
-        panel.collapse();
-      }
-    }
+    if (!panel) return;
+    panel.isCollapsed() ? panel.expand() : panel.collapse();
   };
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <Panel 
+    <Panel
       panelRef={sidebarRef}
-      defaultSize="15%" 
-      minSize="15%" 
-      maxSize="30%" 
-      collapsible={true} 
+      defaultSize="15%"
+      minSize="15%"
+      maxSize="30%"
+      collapsible={true}
       collapsedSize="5%"
       onResize={(size) => {
         setSidebarOpen(size.asPercentage > 5);
       }}
     >
       <div className="h-full bg-primary dark:bg-primary-dark flex flex-col">
-        {/* Sidebar Header */}
         <div className={`h-12 flex items-center border-b border-brd-primary dark:border-brd-primary-dark ${
           sidebarOpen 
             ? 'justify-between pl-7 pr-4' 
@@ -57,14 +51,13 @@ export default function Sidebar({ isDark, setIsDark }) {
             onClick={toggleSidebar}
           >
             {sidebarOpen ? (
-              <TbLayoutSidebarLeftCollapse className="w-6 h-6  text-icon dark:text-icon-dark" />
+              <TbLayoutSidebarLeftCollapse className="w-6 h-6 text-icon dark:text-icon-dark" />
             ) : (
               <TbLayoutSidebarLeftExpand className="w-6 h-6 text-icon dark:text-icon-dark" />
             )}
           </button>
         </div>
         
-        {/* Sidebar Navigation */}
         {sidebarOpen && (
           <div className="flex-1 p-4 flex flex-col overflow-auto">
             <nav className="space-y-2 flex-1">
@@ -99,6 +92,7 @@ export default function Sidebar({ isDark, setIsDark }) {
                 Resources
               </Link>
             </nav>
+
             <nav className="border-t border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
               <button
                 onClick={() => setIsDark(!isDark)}
@@ -132,7 +126,7 @@ export default function Sidebar({ isDark, setIsDark }) {
         onClose={() => setIsSettingsOpen(false)}
         isDark={isDark}
         setIsDark={setIsDark}
-        />
+      />
     </Panel>
   );
 }
