@@ -11,6 +11,11 @@ export default function Shelf() {
   const [pdfFile, setPdfFile] = useState(null);
   const [shelfItems, setShelfItems] = useState([]);
 
+  const getYoutubeThumbnail = (url) => {
+    const videoId = url.split('watch?v=')[1];
+    console.log(videoId);
+    return `https://i3.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  };
 
   return (
     <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark">
@@ -24,7 +29,7 @@ export default function Shelf() {
       </div>
 
       {/* Centering Div */}
-      <div className="flex flex-1 items-center justify-center w-full">
+      <div className="flex flex-1 items-center w-full overflow-hidden">
 
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -68,7 +73,14 @@ export default function Shelf() {
                     <div className="flex gap-2">
                     <button
                         className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
-                        onClick={()=> {setModalView('choose')}}
+                        onClick={()=> {
+                            if (youtubeUrl) {
+                                setShelfItems([...shelfItems, {type: 'youtube', url:youtubeUrl }])
+                                setYoutubeUrl('');
+                                setIsModalOpen(false);
+                                setModalView('choose');
+                            }
+                        }}
                     >
                         Add
                     </button>
@@ -104,31 +116,30 @@ export default function Shelf() {
                     >
                         Back
                         </button>
-
-
                     </div>
-
                 </div>
-                
-
             )}
             </div>
           </div>
         )}
 
         {/* Scroll Div */}
-        <div className="flex flex-row gap-2 overflow-x-auto">
+        <div className="flex flex-row gap-4 overflow-x-auto w-full px-[7.5%]">
           {/* Thumbnails */}
-          <div className="flex flex-col gap-1 w-52 p-2 shrink-0 items-center">
-            <div className="bg-secondary dark:bg-secondary-dark rounded-lg h-72 w-48"></div>
-            <p className="text-sm">Textbook</p>
-          </div>
-          <div className="flex flex-col gap-1 w-96 p-2 shrink-0 items-center">
-            <div className="bg-secondary dark:bg-secondary-dark rounded-lg h-64 w-96"></div>
-            <p className="text-sm">Youtube Video</p>
-          </div>
+          {shelfItems.map((item, index)=> (
+            <div key={index} className="flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center">
+                <a href={item.url} target="_blank"> 
+                <img
+                    src={getYoutubeThumbnail(item.url)}
+                    alt="Youtube thumbnail"
+                    className="rounded-lg w-full object-cover"
+                    />
+                <p className="text-sm">Youtube Video</p>
+                </a>
+            </div>
+        
+        ))}
         </div>
-
       </div>
     </div>
   );
