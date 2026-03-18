@@ -106,7 +106,7 @@ export default function Layout({ isDark, setIsDark }) {
                         >
                           <span>{w.label}</span>
                           <span
-                            className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                            className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all"
                             style={{
                               borderColor: visible[w.id] ? "#e53e3e" : "currentColor",
                               background:  visible[w.id] ? "#e53e3e" : "transparent",
