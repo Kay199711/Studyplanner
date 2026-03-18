@@ -5,7 +5,7 @@ import { Panel } from 'react-resizable-panels';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 import Settings from './Settings';
-import Profile from './Profile';
+import ProfileButton from './ProfileButton';
 
 export default function Sidebar({ isDark, setIsDark }) {
   const { logout } = useAuth();
@@ -109,7 +109,7 @@ export default function Sidebar({ isDark, setIsDark }) {
                 )} Toggle Theme
               </button>
 
-              <Profile
+              <ProfileButton
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onLogout={handleLogout}
               />
