@@ -49,7 +49,7 @@ export default function Todo() {
             </span>
           )}
         </div>
-        <button onClick={openAdd} className="hover:opacity-60 transition-opacity">
+        <button onClick={openAdd} className="hover:text-blue-500">
           <IoIosAddCircleOutline className="w-6 h-6" />
         </button>
       </div>

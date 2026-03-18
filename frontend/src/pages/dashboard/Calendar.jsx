@@ -325,7 +325,7 @@ export default function Calendar() {
 
           {/* TODO: REMOVE - temp placeholder for Ayman to reference popup pattern */}
           <IoIosAddCircleOutline
-            className="w-6 h-6 cursor-pointer hover:text-blue-500 opacity-30"
+            className="w-6 h-6 cursor-pointer hover:text-blue-500"
             onClick={() => setShowAddPopup(true)}
           />
           {/* END TODO */}
