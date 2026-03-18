@@ -89,9 +89,9 @@ export default function Todo() {
               onClick={() => toggle(todo.id)}
               className="flex-shrink-0 w-[17px] h-[17px] rounded-full border-2 flex items-center justify-center transition-all"
               style={{
-                borderColor: todo.done ? "#e53e3e" : "currentColor",
+                borderColor: todo.done ? "#3B82F6" : "currentColor",
                 opacity:     todo.done ? 1 : 0.3,
-                background:  todo.done ? "#e53e3e" : "transparent",
+                background:  todo.done ? "#3B82F6" : "transparent",
               }}
             >
               {todo.done && (
