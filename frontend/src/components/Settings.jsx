@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { IoCloseSharp } from "react-icons/io5";
-import { HiOutlineMoon, HiOutlineSun, HiOutlineUser } from 'react-icons/hi';
+import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
+import General from './General.jsx';
+import Profile from './Profile.jsx';
+import Preferences from './Preferences.jsx';
 
 export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
-    const navigate = useNavigate();
-
-
-
+  
+  const [activeTab, setActiveTab] = useState('General');
+  
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -21,12 +22,12 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  const tabs = ['General', 'Profile', 'Preferences'];
+  const isActive = (tab) => activeTab === tab;
 
-  const handleProfileClick = () => {
-    onClose();
-    navigate('/profile');
-  }
+
+
+  if (!isOpen) return null;
 
   return (
    
@@ -42,8 +43,8 @@ export default function Settings({ isOpen, onClose, isDark, setIsDark }) {
         aria-modal="true"
         aria-label="Settings"
       >
-        <div className="relative mb-4 flex items-center justify-center">
-          <h2 className="text-lg font-semibold">Settings</h2>
+        <div className="relative mb-4  justify-center">
+          {/*<h2 className="text-lg font-semibold">Settings</h2>*/}
           <button
             className="absolute right-0 flex h-8 w-8 items-center justify-center rounded-full hover:bg-hover dark:hover:bg-hover-dark"
             onClick={onClose}
@@ -64,19 +65,42 @@ className="flex h-[calc(100%-3rem)] gap-4"
   borderRadius: "0.5rem",
   width: "10rem",
   backgroundColor: isDark ? "var(--color-secondary-dark)" : "var(--color-secondary)",
+  gap: "0.5rem",
+  padding: "0.5rem",
 } 
 }>
 
 <button
-className="w-full rounded-md px-3 py-2 text-left hover:bg-hover dark:hover:bg-hover-dark">
+className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
+  isActive('General')
+    ? 'bg-hover dark:bg-hover-dark font-medium'
+    : 'hover:bg-hover dark:hover:bg-hover-dark'
+}`}
+onClick={() => setActiveTab('General')}
+aria-pressed={isActive('General')}
+>
   General
 </button>
 
-<button className="w-full rounded-md px-3 py-2 text-left hover:bg-hover dark:hover:bg-hover-dark">
+<button className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
+  isActive('Profile')
+    ? 'bg-hover dark:bg-hover-dark font-medium'
+    : 'hover:bg-hover dark:hover:bg-hover-dark'
+}`}
+onClick={() => setActiveTab('Profile')}
+aria-pressed={isActive('Profile')}
+>
   Profile
 </button>
 
-<button className="w-full rounded-md px-3 py-2 text-left hover:bg-hover dark:hover:bg-hover-dark">
+<button className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
+  isActive('Preferences')
+    ? 'bg-hover dark:bg-hover-dark font-medium'
+    : 'hover:bg-hover dark:hover:bg-hover-dark'
+}`}
+onClick={() => setActiveTab('Preferences')}
+aria-pressed={isActive('Preferences')}
+>
   Preferences
 </button>
 
@@ -84,34 +108,17 @@ className="w-full rounded-md px-3 py-2 text-left hover:bg-hover dark:hover:bg-ho
 
 </aside>
   
-               <div className="justify left space-y-2 text-center">
-          <button
-            onClick={handleProfileClick}
-            className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 hover:bg-hover dark:hover:bg-hover-dark"
-          >
-            <HiOutlineUser />
-            Profile
-            </button>
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 hover:bg-hover dark:hover:bg-hover-dark"
-          >
-            {isDark ? <HiOutlineSun /> : <HiOutlineMoon />}
-            {isDark ? 'Light Mode' : 'Dark Mode'}
-          </button>
-          <p className="text-sm text-icon dark:text-icon-dark">
-            More to come
-          </p>
+               <div className="space-y-2 text-center">
+
+              {activeTab === 'General' && <General isDark={isDark} setIsDark={setIsDark} />}
+              {activeTab === 'Profile' && <Profile />}
+              {activeTab === 'Preferences' && <Preferences />}
+
         </div>
       </div>
+      </div>
     </div>  
-    
-
-</div>
-
-
-
-
+  
     
   );
 }

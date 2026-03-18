@@ -11,7 +11,7 @@ import { LuLayoutDashboard } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
 import { useState } from 'react';
 import Settings from './Settings';
-import Profile from './Profile';
+import ProfileButton from './ProfileButton';
 
 export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar }) {
   const { logout } = useAuth();
@@ -115,7 +115,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 )} Toggle Theme
               </button>
 
-              <Profile
+              <ProfileButton
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onLogout={handleLogout}
               />
