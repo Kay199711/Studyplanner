@@ -128,7 +128,7 @@ export default function Layout({ isDark, setIsDark }) {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 bg-secondary dark:bg-secondary-dark overflow-auto">
+            <div className="flex-1 bg-secondary dark:bg-secondary-dark overflow-hidden">
               <Outlet context={{ visible }} />
             </div>
           </div>

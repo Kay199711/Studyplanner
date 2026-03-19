@@ -25,12 +25,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-3 h-full">
-      <div className={`grid ${gridClass} gap-3 h-full`}>
+    <div className="p-3 h-full overflow-hidden">
+      <div className={`grid ${gridClass} gap-3 h-full overflow-hidden`}>
         {visible.todo && <Todo />}
 
         {showMiddle && (
-          <div className="h-full flex flex-col gap-3">
+          <div className="h-full flex flex-col gap-3 overflow-hidden">
             {visible.note  && <Note />}
             {visible.shelf && <Shelf />}
           </div>

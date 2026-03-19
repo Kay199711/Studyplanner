@@ -3,6 +3,12 @@ import { MdDriveFolderUpload } from "react-icons/md";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
 import { FaRegFilePdf } from "react-icons/fa6";
+import { Document, Page } from 'react-pdf';
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 export default function Shelf() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,12 +19,11 @@ export default function Shelf() {
 
   const getYoutubeThumbnail = (url) => {
     const videoId = url.split('watch?v=')[1];
-    console.log(videoId);
     return `https://i3.ytimg.com/vi/${videoId}/hqdefault.jpg`;
   };
 
   return (
-    <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark">
+    <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark overflow-hidden">
 
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -95,18 +100,25 @@ export default function Shelf() {
             )}
             {modalView === 'pdf' && (
                 <div>
-                    <p className="text-sm opacity-70">Upload a PDFs</p>
+                    <p className="text-sm opacity-70">Upload a PDF</p>
                     <input
                         type="file"
                         accept=".pdf"
                         onChange={(e) => setPdfFile(e.target.files[0])}
-                        value={pdfFile}
                         className="w-full px-3 py-2 rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark cursor-pointer"
                     />
                     <div className="flex gap-2 mt-2">
                         <button
                         className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
-                        onClick={()=> {setModalView('choose')}}
+                        onClick={()=> {
+                            if (pdfFile) {
+                                setShelfItems([...shelfItems, {type: 'pdf', url:pdfFile }])
+                                setPdfFile(null);
+                                setIsModalOpen(false);
+                                setModalView('choose');
+                            }
+                        }}
+
                     >
                         Add
                         </button>
@@ -127,15 +139,30 @@ export default function Shelf() {
         <div className="flex flex-row gap-4 overflow-x-auto w-full px-[7.5%]">
           {/* Thumbnails */}
           {shelfItems.map((item, index)=> (
-            <div key={index} className="flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center">
-                <a href={item.url} target="_blank"> 
-                <img
+            <div key={index} className="flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center overflow-hidden max-h-full">
+                {item.type === 'youtube' ? (
+                    <img
                     src={getYoutubeThumbnail(item.url)}
                     alt="Youtube thumbnail"
-                    className="rounded-lg w-full object-cover"
+                    className="rounded-lg w-full object-cover cursor-pointer"
+                    onClick={() => window.open(item.url, '_blank')}
                     />
-                <p className="text-sm">Youtube Video</p>
-                </a>
+                ) : (
+                    <div style={{position: 'relative', height: '260px', width: '200px', overflow: 'hidden', borderRadius: '8px'}}>
+                        <Document file={item.url}>
+                        <Page 
+                            pageNumber={1} 
+                            width={200}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                        />
+                        </Document>
+                    </div>
+                    )}
+                {item.type === 'youtube' ? (<p className="text-sm">Youtube Video</p>
+                ) : (
+                <p className="text-sm">PDF</p>
+                )}
             </div>
         
         ))}
