@@ -47,12 +47,12 @@ export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = fal
           onClick={() => setIsOpen((prev) => !prev)}
           className={iconOnly 
             ? "p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-            : "w-full text-left block px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
+            : "w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
           }
           title={iconOnly ? "Profile" : undefined}
         >
-          <CgProfile className={iconOnly ? "w-6 h-6 text-icon dark:text-icon-dark" : "inline w-6 h-6 text-icon dark:text-icon-dark"} />
-          {!iconOnly && " Profile"}
+          <CgProfile className={iconOnly ? "w-6 h-6 text-icon dark:text-icon-dark" : "w-5 h-5 text-icon dark:text-icon-dark"} />
+          {!iconOnly && "Profile"}
         </button>
 
         {isOpen && !iconOnly && (

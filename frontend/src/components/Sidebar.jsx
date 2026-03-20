@@ -1,15 +1,16 @@
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
-import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
-import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
-import { PiBooks } from "react-icons/pi";
-import { MdOutlineCalendarMonth } from "react-icons/md";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { BiBookReader } from "react-icons/bi";
 import { useState } from 'react';
 import SettingsModal from './settings/SettingsModal';
 import ProfileButton from './ProfileButton';
+
+import { MdOutlineCalendarMonth } from "react-icons/md";
+import { LuLayoutDashboard } from "react-icons/lu";
+import { BiBookReader } from "react-icons/bi";
+import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
+import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
+import { PiBooks } from "react-icons/pi";
 
 export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar }) {
   const { logout } = useAuth();
@@ -157,7 +158,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                     title = "Toggle Dark Mode"
                     className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
                     onClick={() => setIsDark(!isDark)}
-                    >
+                  >
                     {isDark ? (
                       <HiOutlineSun className='w-6 h-6 text-icon dark:text-icon-dark'/>
                     ) : (
