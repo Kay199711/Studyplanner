@@ -1,16 +1,14 @@
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
-import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from "react-icons/tb";
+import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 import { PiBooks } from "react-icons/pi";
 import { MdOutlineCalendarMonth } from "react-icons/md";
-import { MdOutlineSettings } from "react-icons/md";
-import { HiOutlineLogout } from "react-icons/hi";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
 import { useState } from 'react';
-import Settings from './Settings';
+import SettingsModal from './settings/SettingsModal';
 import ProfileButton from './ProfileButton';
 
 export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar }) {
@@ -154,7 +152,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 </Link>
                 </nav>
 
-                <nav className= 'border-t-2 border-brd-primary dark:border-brd-primary-dark pt-2 flex flex-col gap-4 items-center'>
+                <nav className= 'border-t border-brd-primary dark:border-brd-primary-dark pt-2 flex flex-col gap-2 items-center mb-4'>
                   <button 
                     title = "Toggle Dark Mode"
                     className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
@@ -166,26 +164,17 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                       <HiOutlineMoon className='w-6 h-6 text-icon dark:text-icon-dark'/>
                     )}
                   </button>
-                  <button
-                    title="Settings"
-                    className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-                    onClick={() => {}}
-                  >
-                    <MdOutlineSettings className='w-6 h-6 text-icon dark:text-icon-dark' />
-                  </button>
-                  <button
-                    title="Logout"
-                    className='p-1.5 bg-red-600 text-white rounded-md hover:cursor-pointer hover:bg-red-700 mb-4'
-                    onClick={handleLogout}
-                  >
-                    <HiOutlineLogout className='w-6 h-6 dark:text-icon-dark'/>
-                  </button>
-                
+                  
+                  <ProfileButton
+                    onOpenSettings={() => setIsSettingsOpen(true)}
+                    onLogout={handleLogout}
+                    iconOnly={true}
+                  />
                 </nav>
               </div>
         )}
       </div>
-      <Settings
+      <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         isDark={isDark}
