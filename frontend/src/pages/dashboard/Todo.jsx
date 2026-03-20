@@ -37,10 +37,10 @@ export default function Todo() {
   const remaining = todos.filter(t => !t.done).length;
 
   return (
-    <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl h-full p-4 bg-primary dark:bg-primary-dark">
+    <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl  p-4 bg-primary dark:bg-primary-dark">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2 pb-2 border-b border-brd-primary dark:border-brd-primary-dark">
         <div className="flex items-center gap-2">
           <p className="font-bold">To-Do List</p>
           {remaining > 0 && (
