@@ -16,6 +16,9 @@ export default function Shelf() {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [pdfFile, setPdfFile] = useState(null);
   const [shelfItems, setShelfItems] = useState([]);
+  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+  const [focusedShelfItem, setFocusedItem] = useState(0);
 
   const getYoutubeThumbnail = (url) => {
     const videoId = url.split('watch?v=')[1];
@@ -26,7 +29,7 @@ export default function Shelf() {
     <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark overflow-hidden">
 
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pb-2 mb-2 border-b border-brd-primary dark:border-brd-primary-dark mx-2">
         <p className="font-bold">Shelf</p>
         <button onClick={() => setIsModalOpen(true)}>
           <MdDriveFolderUpload className="w-6 h-6 cursor-pointer hover:text-blue-500" />
@@ -135,38 +138,97 @@ export default function Shelf() {
           </div>
         )}
 
-        {/* Scroll Div */}
-        <div className="flex flex-row gap-4 overflow-x-auto w-full px-[7.5%]">
-          {/* Thumbnails */}
-          {shelfItems.map((item, index)=> (
-            <div key={index} className="flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center overflow-hidden max-h-full">
-                {item.type === 'youtube' ? (
-                    <img
-                    src={getYoutubeThumbnail(item.url)}
-                    alt="Youtube thumbnail"
-                    className="rounded-lg w-full object-cover cursor-pointer"
-                    onClick={() => window.open(item.url, '_blank')}
-                    />
-                ) : (
-                    <div style={{position: 'relative', height: '260px', width: '200px', overflow: 'hidden', borderRadius: '8px'}}>
-                        <Document file={item.url}>
-                        <Page 
-                            pageNumber={1} 
-                            width={200}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                        />
-                        </Document>
+        {selectedPdf && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="fixed flex flex-col h-full w-[50%] rounded-xl border-2 border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
+                    <div className="flex justify-between flex-row w-full items-center p-4">
+                        <h2 className="semi-bold text-lg">Your PDF</h2>
+                        <button
+                        onClick={()=>{setSelectedPdf(null)}}
+                        >
+                            <IoIosCloseCircleOutline className="w-6 h-6 cursor-pointer hover:text-red-500" />
+                        </button>
                     </div>
-                    )}
-                {item.type === 'youtube' ? (<p className="text-sm">Youtube Video</p>
-                ) : (
-                <p className="text-sm">PDF</p>
-                )}
+                    <div className="flex-1 overflow-y-auto flex justify-center p-4">
+                        <Document 
+                            file={selectedPdf}
+                            onLoadSuccess={({numPages})=>setNumPages(numPages)}
+                        >
+                        {numPages && Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
+                            <Page
+                                key={pageNum}
+                                pageNumber={pageNum}
+                                width={600}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                            />
+                        ))}
+                    </Document>
+                </div>
+                </div>
             </div>
-        
-        ))}
-        </div>
+        )}  
+
+            {focusedShelfItem > 0 && (
+
+                <button 
+                className="text-5xl font-light px-2 cursor-pointer hover:opacity-50"
+                onClick={() => setFocusedItem(focusedShelfItem - 1)}
+                >
+                    ‹
+                </button>
+            )}
+            {/* Scroll Div */}
+            <div className="flex flex-1 gap-4 justify-center items-center">
+
+                {/* Thumbnails */}
+                {shelfItems.length > 0 && (( )=> {
+                    const item = shelfItems[focusedShelfItem];
+                    const index = focusedShelfItem;
+                    return (
+
+                        <div key={index} className="flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center overflow-hidden max-h-full">
+                        {item.type === 'youtube' ? (
+                            <img
+                            src={getYoutubeThumbnail(item.url)}
+                            alt="Youtube thumbnail"
+                            className="rounded-lg w-full object-cover cursor-pointer"
+                            onClick={() => window.open(item.url, '_blank')}
+                            />
+                        ) : (
+                            <div 
+                            className="cursor-pointer" 
+                            style={{position: 'relative', height: '260px', width: '200px', overflow: 'hidden', borderRadius: '8px'}}
+                            >
+                                <Document file={item.url}>
+                                <Page 
+                                    pageNumber={1} 
+                                    width={200}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                    onClick={() => setSelectedPdf(item.url)}
+                                    />
+                                </Document>
+                            </div>
+                            )}
+                        {item.type === 'youtube' ? (<p className="text-sm">Youtube Video</p>
+                        ) : (
+                            <p className="text-sm">PDF</p>
+                        )}
+                    </div>
+                );
+                })()}
+            </div>
+            {focusedShelfItem < shelfItems.length -1 && (
+
+                <button 
+                className="text-5xl font-light px-2 cursor-pointer hover:opacity-50"
+                onClick={()=> setFocusedItem(focusedShelfItem + 1)}
+                >
+                    ›
+                </button>
+            )}
+
       </div>
     </div>
   );
