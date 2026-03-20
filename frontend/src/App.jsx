@@ -8,7 +8,6 @@ import Resources from './pages/resources/Resources';
 import Login from './pages/auth/Login'
 import Layout from './Layout';
 
-
 function App() {
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
