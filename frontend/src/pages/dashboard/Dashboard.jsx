@@ -31,7 +31,7 @@ export default function Dashboard() {
 
         {showMiddle && (
           <div className="h-full flex flex-col gap-3 overflow-hidden">
-            {visible.note  && <Note />}
+            {visible.note && <Note />}
             {visible.shelf && <Shelf />}
           </div>
         )}
