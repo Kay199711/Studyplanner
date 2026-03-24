@@ -19,7 +19,7 @@ export default function Shelf() {
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [focusedShelfItem, setFocusedItem] = useState(0);
-
+ async function get_thumbnail(){}
   const getYoutubeThumbnail = (url) => {
     const videoId = url.split('watch?v=')[1];
     return `https://i3.ytimg.com/vi/${videoId}/hqdefault.jpg`;
@@ -129,7 +129,7 @@ export default function Shelf() {
                         className="flex-1 px-3 py-2 rounded-md cursor-pointer border-brd-primary hover:bg-secondary dark:border-brd-primary-dark dark:hover:bg-secondary-dark"
                         onClick={()=> {setModalView('choose')}}
                     >
-                        Back
+                        Back 
                         </button>
                     </div>
                 </div>
