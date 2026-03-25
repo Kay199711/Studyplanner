@@ -27,12 +27,12 @@ export default function LoginRegister() {
   };
 
   return (
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
+      <div className="max-w-md w-full space-y-8 p-8 bg-primary dark:bg-secondary-dark rounded-lg shadow-md">
         <div>
-          <h2 className="text-3xl font-bold text-center text-gray-900">
+          <h2 className="text-3xl font-bold text-center text-txt-primary dark:text-txt-primary-dark">
             Study Planner
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-txt-primary dark:text-txt-primary-dark">
             Sign in to your account
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function LoginRegister() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-icon dark:text-icon-dark">
                 Email
               </label>
               <input
@@ -55,13 +55,13 @@ export default function LoginRegister() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="admin@example.com"
+                className="mt-1 block w-full px-3 py-2 border border-brd-primary dark:border-brd-primary-dark rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-txt-primary dark:text-txt-primary-dark"
+                placeholder ="admin@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-icon dark:text-icon-dark">
                 Password
               </label>
               <input
@@ -70,7 +70,7 @@ export default function LoginRegister() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-brd-primary dark:border-brd-primary-dark rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-txt-primary dark:text-txt-primary-dark"
                 placeholder="dev123"
               />
             </div>
