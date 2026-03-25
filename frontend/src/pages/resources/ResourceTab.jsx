@@ -1,5 +1,6 @@
-export default function Resources() {
-   const classes = ["class", "class", "class", "class", "class", "class"];
+export default function ResourceTab() {
+  const classes = ["class", "class", "class", "class", "class", "class"];
+
   return (
     <div>
       {/* Search + button */}
@@ -30,6 +31,4 @@ export default function Resources() {
       </div>
     </div>
   );
-  }
-  
-  
+}

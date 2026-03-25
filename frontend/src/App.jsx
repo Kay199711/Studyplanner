@@ -8,6 +8,7 @@ import Resources from './pages/resources/Resources';
 import Login from './pages/auth/Login'
 import Layout from './Layout';
 
+import ResourceTab from './pages/resources/Resources';
 
 function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -44,6 +45,7 @@ function App() {
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/resources" element={<Resources />} />
             </Route>
+            <Route path="/rt" element={<Resources />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
