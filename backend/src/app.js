@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import registerRoutes from './routes.js';
+import './config/initTodos.js';
 
 const app = express();
 

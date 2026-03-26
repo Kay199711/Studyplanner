@@ -10,7 +10,6 @@ Format: `<type>/<name>/<description>`
 - `fix/<name>/` - Bug fixes (e.g., `fix/jane/login-validation-error`)
 
 ## Commit Convention
-
 - Commit your changes with clear, descriptive commit messages
 
 **Examples:**

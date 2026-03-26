@@ -1,4 +1,5 @@
 import * as controllers from './controllers/index.js';
+import todosRouter from './routes/todos.js';
 
 export default function registerRoutes(app) {
   // Root route
@@ -9,4 +10,7 @@ export default function registerRoutes(app) {
   // Auth routes
   app.post('/api/auth/login', controllers.login);
   app.post('/api/auth/logout', controllers.logout);
+
+  // Todo routes
+  app.use('/api/todos', todosRouter);
 }
