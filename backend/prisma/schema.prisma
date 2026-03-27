@@ -16,11 +16,3 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-model Users{
-UserID        Int       @id @defaul(autoincrement())
-FirstName     String
-LastName      String
-Email         String    @unique
-PasswordHash  String
-CreatedAt     DateTime  @default(now())
-}
