@@ -10,6 +10,8 @@ export default function LoginRegister() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -27,14 +29,32 @@ export default function LoginRegister() {
   };
 
   return (
-      <div className="max-w-md w-full space-y-8 p-8 bg-primary dark:bg-secondary-dark rounded-lg shadow-md">
-        <div>
-          <h2 className="text-3xl font-bold text-center text-txt-primary dark:text-txt-primary-dark">
-            Study Planner
+      <div className="max-w-md w-full space-y-8 p-8 bg-primary dark:bg-secondary-dark rounded-lg shadow-2xl shadow-secondary-dark dark:shadow-icon-dark">
+        <div className="flex space-x-4">
+
+        <button className='w-full flex justify-center py-2 px-4 border-transparent rounded-md shadow-sm text-sm font-medium text-txt-primary dark:text-txt-primary-dark bg-secondary dark:bg-primary-dark focus:ring-2 focus:ring-blue-500 mb-3'
+          onClick={() => {
+            /*{setIsSignIn(true);}
+            {setIsRegister(false);}*/
+          }}
+          >
+
+          <h2 className="text-3xl font-semibold text-center text-txt-primary dark:text-txt-primary-dark">
+            Sign In
           </h2>
-          <p className="mt-2 text-center text-sm text-txt-primary dark:text-txt-primary-dark">
-            Sign in to your account
-          </p>
+        </button>
+
+        <button className='w-full flex justify-center py-2 px-4 border-transparent rounded-md shadow-sm text-sm font-medium text-txt-primary dark:text-txt-primary-dark bg-secondary dark:bg-primary-dark focus:ring-2 focus:ring-blue-500 mb-3'
+          onClick={() => {
+            /*{setIsSignIn(false);}
+            {setIsRegister(true);}*/
+          }}
+        >
+          <h2 className="text-3xl font-semibold text-center text-txt-primary dark:text-txt-primary-dark">
+            Register
+          </h2>
+        </button>
+
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
