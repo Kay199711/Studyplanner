@@ -14,6 +14,7 @@ export default defineConfig({
       '@fullcalendar/timegrid',
       '@fullcalendar/interaction',
     ],
+  }, // ✅ <-- this was missing
   resolve: {
     dedupe: ['react', 'react-dom']
   },
