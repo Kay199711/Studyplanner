@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-export default function Login() {
+export default function LoginRegister() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,15 +29,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div>
-          <h2 className="text-3xl font-bold text-center text-gray-900">
-            Study Planner
+      <div className="max-w-md w-full space-y-8 p-8 bg-primary dark:bg-secondary-dark rounded-lg shadow-2xl shadow-secondary-dark dark:shadow-icon-dark">
+        <div className="flex space-x-4">
+
+        <button className='w-full flex justify-center py-2 px-4 border-transparent rounded-md shadow-sm text-sm font-medium text-txt-primary dark:text-txt-primary-dark bg-secondary dark:bg-primary-dark focus:ring-2 focus:ring-blue-500 mb-3'
+          onClick={() => {
+            /*{setIsSignIn(true);}
+            {setIsRegister(false);}*/
+          }}
+          >
+
+          <h2 className="text-3xl font-semibold text-center text-txt-primary dark:text-txt-primary-dark">
+            Sign In
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account
-          </p>
+        </button>
+
+        <button className='w-full flex justify-center py-2 px-4 border-transparent rounded-md shadow-sm text-sm font-medium text-txt-primary dark:text-txt-primary-dark bg-secondary dark:bg-primary-dark focus:ring-2 focus:ring-blue-500 mb-3'
+          onClick={() => {
+            /*{setIsSignIn(false);}
+            {setIsRegister(true);}*/
+          }}
+        >
+          <h2 className="text-3xl font-semibold text-center text-txt-primary dark:text-txt-primary-dark">
+            Register
+          </h2>
+        </button>
+
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -47,7 +66,7 @@ export default function Login() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-icon dark:text-icon-dark">
                 Email
               </label>
               <input
@@ -56,13 +75,13 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="admin@example.com"
+                className="mt-1 block w-full px-3 py-2 border border-brd-primary dark:border-brd-primary-dark rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-txt-primary dark:text-txt-primary-dark"
+                placeholder ="admin@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-icon dark:text-icon-dark">
                 Password
               </label>
               <input
@@ -71,7 +90,7 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-brd-primary dark:border-brd-primary-dark rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-txt-primary dark:text-txt-primary-dark"
                 placeholder="dev123"
               />
             </div>
@@ -92,7 +111,6 @@ export default function Login() {
           <p>Password: dev123</p>
         </div>
       </div>
-    </div>
   );
 }
 

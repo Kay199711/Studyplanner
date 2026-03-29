@@ -9,4 +9,5 @@ export default function registerRoutes(app) {
   // Auth routes
   app.post('/api/auth/login', controllers.login);
   app.post('/api/auth/logout', controllers.logout);
+  app.post('/api/auth/register', controllers.register);
 }

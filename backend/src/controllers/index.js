@@ -1,1 +1,1 @@
-export { login, logout } from './authController.js';
+export { login, logout, register } from './authController.js';
