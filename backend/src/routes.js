@@ -9,4 +9,10 @@ export default function registerRoutes(app) {
   // Auth routes
   app.post('/api/auth/login', controllers.login);
   app.post('/api/auth/logout', controllers.logout);
+
+  // Calendar Events routes
+  app.get('/api/events', controllers.getEvents);
+  app.post('/api/events', controllers.createEvent);
+  app.put('/api/events/:id', controllers.updateEvent);
+  app.delete('/api/events/:id', controllers.deleteEvent);
 }
