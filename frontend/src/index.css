@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* Dark mode variant */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* Theme variables */
 :root {
   /* Light mode colors */
