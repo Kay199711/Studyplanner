@@ -1,22 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { IoIosAddCircleOutline } from "react-icons/io";
 
-// ---- EVENT DATA TYPE (matches backend TodoItems table) ----
+// ---- EVENT DATA TYPE (matches backend CalendarEvents table) ----
 // {
-//   todo_id: number,       // backend primary key
-//   title: string,         // required
-//   description: string,   // optional
-//   status: 'todo' | 'in-progress' | 'done',
-//   priority: 'low' | 'medium' | 'high',
-//   due_date: string,      // format: 'YYYY-MM-DD' maps to our 'date'
+//   event_id: string,
+//   title: string,
+//   description: string,
+//   start_date: string,  // ISO format YYYY-MM-DDTHH:MM:SS
+//   end_date: string,    // ISO format YYYY-MM-DDTHH:MM:SS
+//   all_day: boolean,
 //   created_at: string,
 //   updated_at: string,
 // }
-//
-// Frontend mapping:
-//   due_date → date
-//   status === 'done' → completed: true
-//   todo_id → id
 
 // ---- FUTURE PROPS ----
 // When Dashboard wires everything together, Calendar will accept:
@@ -26,27 +21,21 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 // - userId: string               → for backend API calls
 
 // ---- HELPERS ----
-const uid = () => Math.random().toString(36).slice(2, 10);
-
 const to12Hr = (time24) => {
+  if (!time24) return '';
   const [h, m] = time24.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
   const hour = h % 12 || 12;
   return `${hour}:${String(m).padStart(2, '0')} ${period}`;
 };
 
-// ---- PLACEHOLDER DATA ----
-const placeholderEvents = [
-  { id: '1', title: 'Review lecture notes for midterm', date: '2026-01-01', startTime: '10:00', endTime: '11:00', completed: false, source: 'todo' },
-  { id: '2', title: 'Submit assignment 3', date: '2026-01-01', startTime: '14:00', endTime: '15:00', completed: false, source: 'todo' },
-  { id: '3', title: 'Read chapter 7', date: '2026-01-02', startTime: '09:00', endTime: '10:00', completed: false, source: 'todo' },
-  { id: '4', title: 'Schedule study group', date: '2026-01-03', startTime: '15:00', endTime: '16:00', completed: false, source: 'calendar' },
-];
+const API_URL = 'http://localhost:3000';
 
 export default function Calendar() {
 
   // ---- STATE ----
-  const [events, setEvents] = useState(placeholderEvents);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
   const [selectedDay, setSelectedDay] = useState(null);
   const [calendarView, setCalendarView] = useState('month');
@@ -54,6 +43,32 @@ export default function Calendar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const dayViewRef = useRef(null);
+
+  // ---- FETCH EVENTS ON LOAD ----
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/events`);
+        const data = await res.json();
+        setEvents(data.map(e => ({
+          id: String(e.event_id),
+          title: e.title,
+          date: e.start_date?.split('T')[0],
+          startTime: e.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+          endTime: e.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+          completed: false,
+          allDay: e.all_day,
+          source: 'calendar',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   // ---- CLOSE DROPDOWN ON OUTSIDE CLICK ----
   useEffect(() => {
@@ -82,13 +97,11 @@ export default function Calendar() {
 
     setTimeout(() => {
       if (!dayViewRef.current) return;
-
       if (incomplete.length === 0) {
         const slotHeight = dayViewRef.current.scrollHeight / 24;
         dayViewRef.current.scrollTop = 8 * slotHeight;
         return;
       }
-
       const earliestHour = parseInt(incomplete[0].startTime.split(':')[0]);
       const scrollToHour = Math.max(0, earliestHour - 3);
       const slotHeight = dayViewRef.current.scrollHeight / 24;
@@ -108,6 +121,7 @@ export default function Calendar() {
     `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   const formatTimeDisplay = (startTime, endTime) => {
+    if (!startTime || !endTime) return '';
     if (startTime === '00:00' && endTime === '23:59') return 'All day';
     return `${to12Hr(startTime)} - ${to12Hr(endTime)}`;
   };
@@ -149,31 +163,54 @@ export default function Calendar() {
   };
 
   // ---- ADD EVENT ----
-  // TODO: wire to POST /api/todos
-  const addEvent = () => {
+  const addEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
-    const event = {
-      id: uid(),
-      title: newEvent.title,
-      date: newEvent.date,
-      startTime: newEvent.startTime || '00:00',
-      endTime: newEvent.endTime || '23:59',
-      completed: false,
-      source: 'calendar',
-    };
-    setEvents([...events, event]);
+
+    const startDateTime = `${newEvent.date}T${newEvent.startTime || '00:00'}:00`;
+    const endDateTime = `${newEvent.date}T${newEvent.endTime || '23:59'}:00`;
+    const isAllDay = !newEvent.startTime && !newEvent.endTime;
+
+    try {
+      const res = await fetch(`${API_URL}/api/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newEvent.title,
+          start_date: startDateTime,
+          end_date: endDateTime,
+          all_day: isAllDay,
+        }),
+      });
+      const saved = await res.json();
+      setEvents(prev => [...prev, {
+        id: String(saved.event_id),
+        title: saved.title,
+        date: saved.start_date?.split('T')[0],
+        startTime: saved.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+        endTime: saved.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+        completed: false,
+        allDay: saved.all_day,
+        source: 'calendar',
+      }]);
+    } catch (err) {
+      console.error('Failed to add event:', err);
+    }
+
     setNewEvent({ title: '', date: '', startTime: '', endTime: '' });
     setShowDropdown(false);
   };
 
   // ---- DELETE EVENT ----
-  // TODO: wire to DELETE /api/todos/:id
-  const deleteEvent = (id) => {
-    setEvents(prev => prev.filter(e => e.id !== id));
+  const deleteEvent = async (id) => {
+    try {
+      await fetch(`${API_URL}/api/events/${id}`, { method: 'DELETE' });
+      setEvents(prev => prev.filter(e => e.id !== id));
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    }
   };
 
   // ---- TOGGLE COMPLETE ----
-  // TODO: wire to PUT /api/todos/:id
   const toggleComplete = (id) => {
     setEvents(prev => prev.map(e =>
       e.id === id ? { ...e, completed: !e.completed } : e
@@ -322,7 +359,6 @@ export default function Calendar() {
     const dayEvents = getEventsForDay(dateStr);
     const sortedEvents = [...dayEvents].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-    // One event per slot max — first match wins
     const hourEventMap = {};
     hours.forEach(hour => {
       const match = sortedEvents.find(e =>
@@ -448,10 +484,17 @@ export default function Calendar() {
         ))}
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-sm opacity-50">Loading events...</p>
+        </div>
+      )}
+
       {/* Calendar View */}
-      {calendarView === 'month' && renderMonthView()}
-      {calendarView === 'week' && renderWeekView()}
-      {calendarView === 'day' && renderDayView()}
+      {!loading && calendarView === 'month' && renderMonthView()}
+      {!loading && calendarView === 'week' && renderWeekView()}
+      {!loading && calendarView === 'day' && renderDayView()}
 
     </div>
   );
