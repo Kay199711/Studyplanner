@@ -38,3 +38,20 @@ npm run dev
 - Read [CONTRIBUTING.md](CONTRIBUTING.md)
 
 test
+
+add code 
+=============
+git add .
+git commit -m "message"
+git push 
+=============
+
+get code
+=================
+git pull origin branchName
+==================
+
+update remote branches like pull from the internet
+===========
+git fetch
+=========
