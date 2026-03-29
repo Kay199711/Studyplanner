@@ -16,9 +16,9 @@ cp .env.example .env
 npm run dev
 ```
 
+### Run backend
 
-npm run dev
-```cd backend
+`cd backend
 
 npm install
 
@@ -26,11 +26,12 @@ cp .env.example .env
 
 # Generate Prisma Client
 npm run prisma:generate
+
 # Run database migrations
 npm run prisma:migrate
-# This
 
-### Before Contributing
+# Start backend server + Prisma Studio
+npm run dev
 
 - Read [CONTRIBUTING.md](CONTRIBUTING.md)
 
