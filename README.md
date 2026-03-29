@@ -16,9 +16,9 @@ cp .env.example .env
 npm run dev
 ```
 
-### Running the Backend
-```bash
-cd backend
+
+npm run dev
+```cd backend
 
 npm install
 
@@ -28,10 +28,7 @@ cp .env.example .env
 npm run prisma:generate
 # Run database migrations
 npm run prisma:migrate
-# This creates /backend/prisma/db.sqlite
-
-npm run dev
-```
+# This
 
 ### Before Contributing
 
