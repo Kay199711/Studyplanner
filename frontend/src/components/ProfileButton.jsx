@@ -1,25 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { CgProfile } from "react-icons/cg";
 
-<<<<<<< HEAD
-export default function ProfileButton({ onOpenSettings, onLogout }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
-=======
 export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const [menuPosition, setMenuPosition] = useState({ bottom: 0, left: 0 });
->>>>>>> feature/MatthewA/Backend
 
   useEffect(() => {
     if (!isOpen) return;
 
-<<<<<<< HEAD
-    const handleOutsideClick = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-=======
     // Calculate position for fixed positioning
     if (iconOnly && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
@@ -32,7 +22,6 @@ export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = fal
     const handleOutsideClick = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target) && 
           buttonRef.current && !buttonRef.current.contains(event.target)) {
->>>>>>> feature/MatthewA/Backend
         setIsOpen(false);
       }
     };
@@ -48,14 +37,6 @@ export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = fal
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleEscape);
     };
-<<<<<<< HEAD
-  }, [isOpen]);
-
-  return (
-    <div ref={menuRef} className="relative">
-      {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 w-full rounded-md border border-brd-primary bg-primary p-1 shadow-lg dark:border-brd-primary-dark dark:bg-primary-dark z-20">
-=======
   }, [isOpen, iconOnly]);
 
   return (
@@ -107,7 +88,6 @@ export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = fal
             left: `${menuPosition.left}px`
           }}
         >
->>>>>>> feature/MatthewA/Backend
           <button
             onClick={() => {
               onOpenSettings();
@@ -128,17 +108,6 @@ export default function ProfileButton({ onOpenSettings, onLogout, iconOnly = fal
           </button>
         </div>
       )}
-<<<<<<< HEAD
-
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full text-left block px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-      >
-        <CgProfile className="inline w-6 h-6 text-icon dark:text-icon-dark" /> Profile
-      </button>
-    </div>
-=======
     </>
->>>>>>> feature/MatthewA/Backend
   );
 }
