@@ -53,7 +53,7 @@ export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validate input
+      // Validate input
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -61,6 +61,7 @@ export const register = async (req, res, next) => {
       });
     }
     
+      // Check user
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
