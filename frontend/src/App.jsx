@@ -5,7 +5,7 @@ import ProtectedRoute from './middleware/ProtectedRoute';
 import Dashboard from './pages/dashboard/Dashboard';
 import Calendar from './pages/calendar/Calendar';
 import Resources from './pages/resources/Resources';
-import Login from './pages/auth/Login'
+import Landing from './pages/landing/Landing';
 import Layout from './Layout';
 
 import ResourceTab from './pages/resources/Resources';
@@ -31,11 +31,9 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-
           {/* Public routes */}
           <Route element={<ProtectedRoute requireAuth={false} />}>
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Landing />} />
           </Route>
 
           {/* Protected routes */}
@@ -48,7 +46,7 @@ function App() {
             <Route path="/rt" element={<Resources />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
