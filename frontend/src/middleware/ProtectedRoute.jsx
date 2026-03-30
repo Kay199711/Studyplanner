@@ -13,7 +13,7 @@ export default function ProtectedRoute({ requireAuth = true }) {
   }
 
   if (requireAuth && !user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (!requireAuth && user) {
