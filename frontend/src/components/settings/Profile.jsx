@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { CiEdit } from "react-icons/ci";
 
