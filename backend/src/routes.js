@@ -15,4 +15,10 @@ export default function registerRoutes(app) {
   app.post('/api/events', controllers.createEvent);
   app.put('/api/events/:id', controllers.updateEvent);
   app.delete('/api/events/:id', controllers.deleteEvent);
+
+  // Resources routes
+  app.get('/api/events', controllers.getResources);
+  app.get('/api/events', controllers.createResource);
+  app.get('/api/events/:id', controllers.updateResource);
+  app.get('/api/events/:id', controllers.deleteResource);
 }
