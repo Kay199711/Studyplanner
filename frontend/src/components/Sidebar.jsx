@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Panel } from 'react-resizable-panels';
 import { useState } from 'react';
-import SettingsModal from './settings/SettingsModal';
+import Settings from './settings/Settings.jsx';
 import ProfileButton from './ProfileButton';
 
 import { MdOutlineCalendarMonth } from "react-icons/md";
@@ -175,7 +175,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
               </div>
         )}
       </div>
-      <SettingsModal
+      <Settings
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         isDark={isDark}
