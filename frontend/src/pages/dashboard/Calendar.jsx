@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { IoIosAddCircleOutline } from "react-icons/io";
 
-// ---- EVENT DATA TYPE ----
-// When backend is ready, this shape should match the API response
+// ---- EVENT DATA TYPE (matches backend CalendarEvents table) ----
 // {
-//   id: string,
+//   event_id: string,
 //   title: string,
-//   date: string,        // format: 'YYYY-MM-DD'
-//   startTime: string,   // format: 'HH:MM' (24hr)
-//   endTime: string,     // format: 'HH:MM' (24hr)
-//   completed: boolean,  // for todo integration
-//   source: 'calendar' | 'todo'  // which widget created it
+//   description: string,
+//   start_date: string,  // ISO format YYYY-MM-DDTHH:MM:SS
+//   end_date: string,    // ISO format YYYY-MM-DDTHH:MM:SS
+//   all_day: boolean,
+//   created_at: string,
+//   updated_at: string,
 // }
 
 // ---- FUTURE PROPS ----
@@ -21,39 +21,94 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 // - userId: string               → for backend API calls
 
 // ---- HELPERS ----
-const uid = () => Math.random().toString(36).slice(2, 10);
-
 const to12Hr = (time24) => {
+  if (!time24) return '';
   const [h, m] = time24.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
   const hour = h % 12 || 12;
   return `${hour}:${String(m).padStart(2, '0')} ${period}`;
 };
 
-// ---- PLACEHOLDER DATA ----
-// SWAP: Replace useState(placeholderEvents) with useEffect that fetches from API
-// e.g. GET /api/events?userId=123
-const placeholderEvents = [
-  { id: '1', title: 'Review lecture notes for midterm', date: '2026-01-01', startTime: '10:00', endTime: '11:00', completed: false, source: 'todo' },
-  { id: '2', title: 'Submit assignment 3', date: '2026-01-01', startTime: '14:00', endTime: '15:00', completed: false, source: 'todo' },
-  { id: '3', title: 'Read chapter 7', date: '2026-01-02', startTime: '09:00', endTime: '10:00', completed: false, source: 'todo' },
-  { id: '4', title: 'Schedule study group', date: '2026-01-03', startTime: '15:00', endTime: '16:00', completed: false, source: 'calendar' },
-];
+const API_URL = 'http://localhost:3000';
 
 export default function Calendar() {
 
   // ---- STATE ----
-  // TODO: replace placeholderEvents with []
-  // then add: useEffect(() => { fetchEvents().then(setEvents) }, [userId])
-  const [events, setEvents] = useState(placeholderEvents);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
   const [selectedDay, setSelectedDay] = useState(null);
   const [calendarView, setCalendarView] = useState('month');
   const [newEvent, setNewEvent] = useState({ title: '', date: '', startTime: '', endTime: '' });
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+  const dayViewRef = useRef(null);
 
-  // TODO: REMOVE - temp state for Ayman's popup reference
-  const [showAddPopup, setShowAddPopup] = useState(false);
-  // END TODO
+  // ---- FETCH EVENTS ON LOAD ----
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/events`);
+        const data = await res.json();
+        setEvents(data.map(e => ({
+          id: String(e.event_id),
+          title: e.title,
+          date: e.start_date?.split('T')[0],
+          startTime: e.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+          endTime: e.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+          completed: false,
+          allDay: e.all_day,
+          source: 'calendar',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  // ---- CLOSE DROPDOWN ON OUTSIDE CLICK ----
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // ---- AUTO SCROLL TO NEAREST TASK WITH 3 SLOT BUFFER ----
+  useEffect(() => {
+    if (calendarView !== 'day' || !dayViewRef.current) return;
+
+    const dateStr = formatDateStr(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
+
+    const incomplete = events
+      .filter(e => e.date === dateStr && !e.completed)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    setTimeout(() => {
+      if (!dayViewRef.current) return;
+      if (incomplete.length === 0) {
+        const slotHeight = dayViewRef.current.scrollHeight / 24;
+        dayViewRef.current.scrollTop = 8 * slotHeight;
+        return;
+      }
+      const earliestHour = parseInt(incomplete[0].startTime.split(':')[0]);
+      const scrollToHour = Math.max(0, earliestHour - 3);
+      const slotHeight = dayViewRef.current.scrollHeight / 24;
+      dayViewRef.current.scrollTop = scrollToHour * slotHeight;
+    }, 50);
+
+  }, [calendarView, currentDate, events]);
 
   // ---- CALENDAR HELPERS ----
   const getDaysInMonth = (date) =>
@@ -66,6 +121,7 @@ export default function Calendar() {
     `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   const formatTimeDisplay = (startTime, endTime) => {
+    if (!startTime || !endTime) return '';
     if (startTime === '00:00' && endTime === '23:59') return 'All day';
     return `${to12Hr(startTime)} - ${to12Hr(endTime)}`;
   };
@@ -107,33 +163,58 @@ export default function Calendar() {
   };
 
   // ---- ADD EVENT ----
-  // TODO: wire to POST /api/events
-  const addEvent = () => {
+  const addEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
-    const event = {
-      id: uid(),
-      title: newEvent.title,
-      date: newEvent.date,
-      startTime: newEvent.startTime || '00:00',
-      endTime: newEvent.endTime || '23:59',
-      completed: false,
-      source: 'calendar',
-    };
-    setEvents([...events, event]);
+
+    const startDateTime = `${newEvent.date}T${newEvent.startTime || '00:00'}:00`;
+    const endDateTime = `${newEvent.date}T${newEvent.endTime || '23:59'}:00`;
+    const isAllDay = !newEvent.startTime && !newEvent.endTime;
+
+    try {
+      const res = await fetch(`${API_URL}/api/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newEvent.title,
+          start_date: startDateTime,
+          end_date: endDateTime,
+          all_day: isAllDay,
+        }),
+      });
+      const saved = await res.json();
+      setEvents(prev => [...prev, {
+        id: String(saved.event_id),
+        title: saved.title,
+        date: saved.start_date?.split('T')[0],
+        startTime: saved.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+        endTime: saved.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+        completed: false,
+        allDay: saved.all_day,
+        source: 'calendar',
+      }]);
+    } catch (err) {
+      console.error('Failed to add event:', err);
+    }
+
     setNewEvent({ title: '', date: '', startTime: '', endTime: '' });
-    setShowAddPopup(false);
+    setShowDropdown(false);
   };
 
   // ---- DELETE EVENT ----
-  // TODO: wire to DELETE /api/events/:id
-  const deleteEvent = (id) => {
-    setEvents(prev => prev.filter(e => e.id !== id));
+  const deleteEvent = async (id) => {
+    try {
+      await fetch(`${API_URL}/api/events/${id}`, { method: 'DELETE' });
+      setEvents(prev => prev.filter(e => e.id !== id));
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    }
   };
 
   // ---- TOGGLE COMPLETE ----
-  // TODO: wire to PATCH /api/events/:id { completed: true }
   const toggleComplete = (id) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
+    setEvents(prev => prev.map(e =>
+      e.id === id ? { ...e, completed: !e.completed } : e
+    ));
   };
 
   // ---- CONSTANTS ----
@@ -141,11 +222,10 @@ export default function Calendar() {
                       'July', 'August', 'September', 'October', 'November', 'December'];
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const hours = Array.from({ length: 18 }, (_, i) => {
-    const hour24 = i + 6;
-    const period = hour24 >= 12 ? 'PM' : 'AM';
-    const hour = hour24 % 12 || 12;
-    return { label: `${hour} ${period}`, value: String(hour24).padStart(2, '0') };
+  const hours = Array.from({ length: 24 }, (_, i) => {
+    const period = i >= 12 ? 'PM' : 'AM';
+    const hour = i % 12 || 12;
+    return { label: `${hour} ${period}`, value: String(i).padStart(2, '0') };
   });
 
   // ---- SELECTED DAY PANEL ----
@@ -181,7 +261,6 @@ export default function Calendar() {
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="opacity-50">{formatTimeDisplay(event.startTime, event.endTime)}</span>
-                  {/* TODO: hook toggleComplete and deleteEvent into shared state when backend ready */}
                   <button onClick={() => toggleComplete(event.id)} className="opacity-40 hover:opacity-100">✓</button>
                   <button onClick={() => deleteEvent(event.id)} className="opacity-40 hover:opacity-100 text-red-500">✕</button>
                 </div>
@@ -244,17 +323,17 @@ export default function Calendar() {
           return (
             <div
               key={i}
-              className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-secondary dark:bg-secondary-dark flex-1"
+              className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-primary dark:bg-primary-dark flex-1"
             >
               <div className="w-16 shrink-0">
-                <span className="text-xs opacity-50 block">
+                <span className="text-xs font-medium opacity-70 block">
                   {d.toLocaleDateString('en-US', { weekday: 'short' })}
                 </span>
                 <span className="text-sm font-bold">{d.getDate()}</span>
               </div>
               <div className="flex-1 flex flex-wrap gap-1 items-center">
                 {dayEvents.length === 0 ? (
-                  <span className="text-xs opacity-30">No events</span>
+                  <span className="text-xs font-medium opacity-60">No events</span>
                 ) : (
                   dayEvents.map(event => (
                     <div key={event.id} className={`text-xs px-2 py-1 rounded bg-blue-500 text-white ${event.completed ? 'opacity-50' : ''}`}>
@@ -272,32 +351,43 @@ export default function Calendar() {
 
   // ---- DAY VIEW ----
   const renderDayView = () => {
-    const dateStr = formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+    const dateStr = formatDateStr(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
     const dayEvents = getEventsForDay(dateStr);
     const sortedEvents = [...dayEvents].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-    return (
-      <div className="rounded-lg border border-brd-primary dark:border-brd-primary-dark overflow-hidden w-full flex flex-col flex-1">
-        {hours.map((hour) => {
-          const hourEvents = sortedEvents.filter(e => e.startTime && e.startTime.startsWith(hour.value));
-          const first = hourEvents[0];
-          const extra = hourEvents.length - 1;
+    const hourEventMap = {};
+    hours.forEach(hour => {
+      const match = sortedEvents.find(e =>
+        e.startTime && e.startTime.startsWith(hour.value)
+      );
+      hourEventMap[hour.value] = match || null;
+    });
 
+    return (
+      <div
+        ref={dayViewRef}
+        className="rounded-lg border border-brd-primary dark:border-brd-primary-dark w-full flex-1 min-h-0 overflow-y-scroll"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#3b82f6 transparent',
+        }}
+      >
+        {hours.map((hour) => {
+          const event = hourEventMap[hour.value];
           return (
             <div
               key={hour.value}
-              className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 flex-1"
+              className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 h-10"
             >
               <span className="text-xs opacity-50 w-14 shrink-0">{hour.label}</span>
               <div className="flex-1">
-                {first && (
-                  <div className={`flex items-center gap-2 text-xs p-1 rounded bg-blue-500 text-white ${first.completed ? 'opacity-50' : ''}`}>
-                    <span className="truncate">{first.title} · {formatTimeDisplay(first.startTime, first.endTime)}</span>
-                    {extra > 0 && (
-                      <span className="shrink-0 bg-blue-700 px-1.5 py-0.5 rounded-full text-xs">
-                        +{extra}
-                      </span>
-                    )}
+                {event && (
+                  <div className={`text-xs px-2 py-1 rounded bg-blue-500 text-white truncate ${event.completed ? 'opacity-50' : ''}`}>
+                    {event.title} · {formatTimeDisplay(event.startTime, event.endTime)}
                   </div>
                 )}
               </div>
@@ -310,10 +400,10 @@ export default function Calendar() {
 
   // ---- RENDER ----
   return (
-    <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl h-full p-4 bg-primary dark:bg-primary-dark gap-3">
+    <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl h-full p-4 bg-primary dark:bg-primary-dark gap-3 overflow-hidden">
 
       {/* Header */}
-      <div className="flex items-center justify-between w-full">
+      <div className="flex items-center justify-between w-full relative" ref={dropdownRef}>
         <p className="font-bold text-lg">
           {calendarView === 'month' && `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
           {calendarView === 'week' && `Week of ${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}`}
@@ -322,14 +412,59 @@ export default function Calendar() {
         <div className="flex items-center gap-2">
           <button onClick={prevPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">←</button>
           <button onClick={nextPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">→</button>
-
-          {/* TODO: REMOVE - temp placeholder for Ayman to reference popup pattern */}
           <IoIosAddCircleOutline
             className="w-6 h-6 cursor-pointer hover:text-blue-500"
-            onClick={() => setShowAddPopup(true)}
+            onClick={() => setShowDropdown(prev => !prev)}
           />
-          {/* END TODO */}
         </div>
+
+        {/* Add Event Dropdown */}
+        {showDropdown && (
+          <div className="absolute top-10 right-0 z-50 w-72 bg-primary dark:bg-primary-dark border border-brd-primary dark:border-brd-primary-dark rounded-lg shadow-lg p-4 flex flex-col gap-3">
+            <p className="text-sm font-semibold">Add Event</p>
+            <input
+              type="text"
+              placeholder="Event title"
+              value={newEvent.title}
+              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+              className="w-full px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
+            />
+            <input
+              type="date"
+              value={newEvent.date}
+              onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+              className="w-full px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
+            />
+            <div className="flex gap-2">
+              <input
+                type="time"
+                value={newEvent.startTime}
+                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                className="flex-1 px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
+              />
+              <input
+                type="time"
+                value={newEvent.endTime}
+                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                className="flex-1 px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={addEvent}
+                className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowDropdown(false)}
+                className="flex-1 px-3 py-2 text-sm bg-secondary dark:bg-secondary-dark rounded-md border border-brd-primary dark:border-brd-primary-dark"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* View Switcher */}
@@ -349,65 +484,17 @@ export default function Calendar() {
         ))}
       </div>
 
-      {/* Calendar View */}
-      {calendarView === 'month' && renderMonthView()}
-      {calendarView === 'week' && renderWeekView()}
-      {calendarView === 'day' && renderDayView()}
-
-      {/* TODO: REMOVE - temp popup for Ayman's reference only */}
-      {/* This pattern will live in Todo.jsx, not Calendar.jsx */}
-      {showAddPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-primary dark:bg-primary-dark rounded-lg border border-brd-primary dark:border-brd-primary-dark p-6 w-96 flex flex-col gap-3">
-            <h2 className="font-semibold text-lg">Add Event</h2>
-            <input
-              type="text"
-              placeholder="Event title"
-              value={newEvent.title}
-              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-              className="w-full px-3 py-2 rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark"
-            />
-            <div className="flex flex-col gap-1">
-              <label className="text-sm opacity-70">Date</label>
-              <input
-                type="date"
-                value={newEvent.date}
-                onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-                className="w-full px-3 py-2 rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark"
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm opacity-70">Start Time</label>
-                <input
-                  type="time"
-                  value={newEvent.startTime}
-                  onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark"
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm opacity-70">End Time (optional)</label>
-                <input
-                  type="time"
-                  value={newEvent.endTime}
-                  onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2 mt-2">
-              <button onClick={addEvent} className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                Add Event
-              </button>
-              <button onClick={() => setShowAddPopup(false)} className="flex-1 px-3 py-2 bg-secondary dark:bg-secondary-dark rounded-md border border-brd-primary dark:border-brd-primary-dark">
-                Cancel
-              </button>
-            </div>
-          </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-sm opacity-50">Loading events...</p>
         </div>
       )}
-      {/* END TODO */}
+
+      {/* Calendar View */}
+      {!loading && calendarView === 'month' && renderMonthView()}
+      {!loading && calendarView === 'week' && renderWeekView()}
+      {!loading && calendarView === 'day' && renderDayView()}
 
     </div>
   );
