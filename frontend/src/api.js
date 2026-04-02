@@ -54,6 +54,13 @@ class ApiClient {
     });
   }
 
+  async register(name, email, password) {
+    return this.request('/api/auth/register', {
+      method: 'POST',
+      body: { name, email, password },
+    });
+  }
+
   async logout() {
     return this.request('/api/auth/logout', { method: 'POST' });
   }
