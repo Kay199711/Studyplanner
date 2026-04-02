@@ -127,6 +127,29 @@ class ApiClient {
   async deleteNote(id) {
     return this.request(`/api/notes/${id}`, { method: 'DELETE' });
   }
+
+  // Calendar Events
+  async getEvents() {
+    return this.request('/api/events');
+  }
+
+  async createEvent(title, start_date, end_date, all_day = false, description = null) {
+    return this.request('/api/events', {
+      method: 'POST',
+      body: { title, start_date, end_date, all_day, description },
+    });
+  }
+
+  async updateEvent(id, fields) {
+    return this.request(`/api/events/${id}`, {
+      method: 'PUT',
+      body: fields,
+    });
+  }
+
+  async deleteEvent(id) {
+    return this.request(`/api/events/${id}`, { method: 'DELETE' });
+  }
 }
 
 export default new ApiClient();
