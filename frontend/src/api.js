@@ -81,6 +81,29 @@ class ApiClient {
       body: { currentPassword, newPassword, confirmPassword },
     });
   }
+
+  // Shelf
+  async getShelfItems() {
+    return this.request('/api/shelf');
+  }
+
+  async addShelfYoutube(url) {
+    return this.request('/api/shelf', {
+      method: 'POST',
+      body: { type: 'youtube', url },
+    });
+  }
+
+  async addShelfPdf(fileData, fileName) {
+    return this.request('/api/shelf', {
+      method: 'POST',
+      body: { type: 'pdf', fileData, fileName },
+    });
+  }
+
+  async deleteShelfItem(id) {
+    return this.request(`/api/shelf/${id}`, { method: 'DELETE' });
+  }
 }
 
 export default new ApiClient();
