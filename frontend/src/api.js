@@ -81,6 +81,52 @@ class ApiClient {
       body: { currentPassword, newPassword, confirmPassword },
     });
   }
+
+  // Shelf
+  async getShelfItems() {
+    return this.request('/api/shelf');
+  }
+
+  async addShelfYoutube(url) {
+    return this.request('/api/shelf', {
+      method: 'POST',
+      body: { type: 'youtube', url },
+    });
+  }
+
+  async addShelfPdf(fileData, fileName) {
+    return this.request('/api/shelf', {
+      method: 'POST',
+      body: { type: 'pdf', fileData, fileName },
+    });
+  }
+
+  async deleteShelfItem(id) {
+    return this.request(`/api/shelf/${id}`, { method: 'DELETE' });
+  }
+
+  // Notes
+  async getNotes() {
+    return this.request('/api/notes');
+  }
+
+  async createNote(content, color, pinned = 0) {
+    return this.request('/api/notes', {
+      method: 'POST',
+      body: { content, color, pinned },
+    });
+  }
+
+  async updateNote(id, content, color, pinned) {
+    return this.request(`/api/notes/${id}`, {
+      method: 'PUT',
+      body: { content, color, Pinned: pinned },
+    });
+  }
+
+  async deleteNote(id) {
+    return this.request(`/api/notes/${id}`, { method: 'DELETE' });
+  }
 }
 
 export default new ApiClient();

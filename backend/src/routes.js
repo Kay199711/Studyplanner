@@ -14,4 +14,15 @@ export default function registerRoutes(app) {
   // User routes
   app.patch('/api/users/:id/profile', controllers.updateProfile);
   app.patch('/api/users/:id/password', controllers.updatePassword);
+
+   // Sticky Note routes
+   app.get('/api/notes', controllers.getNotes);
+   app.post('/api/notes', controllers.createNote);
+   app.put('/api/notes/:id', controllers.updateNote);
+   app.delete('/api/notes/:id', controllers.deleteNote);
+ 
+   // Shelf routes
+   app.get('/api/shelf', controllers.getShelfItems);
+   app.post('/api/shelf', controllers.createShelfItem);
+   app.delete('/api/shelf/:id', controllers.deleteShelfItem);
 }
