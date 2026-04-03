@@ -130,7 +130,9 @@ export default function Calendar() {
   };
 
   const toggleComplete = (id) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
+    setEvents(prev => prev.map(e =>
+      e.id === id ? { ...e, completed: !e.completed } : e
+    ));
   };
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
