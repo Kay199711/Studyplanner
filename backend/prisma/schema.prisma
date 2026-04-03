@@ -16,6 +16,25 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Note {
+  id          Int       @id @default(autoincrement())
+  content     String
+  color       String
+  Pinned      Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ShelfItem {
+  id        Int      @id @default(autoincrement())
+  type      String
+  url       String?
+  fileData  String?
+  fileName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model CalendarEvent {
   id          String   @id @default(uuid())
   title       String
@@ -25,15 +44,4 @@ model CalendarEvent {
   allDay      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-model Resources {
-    resourceID    Int   @id @default(autoincrement())
-    className     String
-    description   String?
-    instructor    String?
-    schedule      String?
-    semester      String?
-    createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @updatedAt
 }
