@@ -5,6 +5,7 @@ import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import api from "../../api.js";
 
+const defaultColors = ['#f2f2f2', '#171717'];
 const colorPalette = [
   '#fef08a', '#fda4af', '#a5f3fc', '#d8b4fe',
   '#bbf7d0', '#fed7aa', '#fecaca', '#e9d5ff',
@@ -35,7 +36,8 @@ export default function Note() {
   }, []);
 
   const handleAdd = () => {
-    api.createNote(' ', '#fda4af', 0)
+    const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+    api.createNote(' ', randomColor, 0)
       .then(data => {
         if (data.success) {
           setNotes([...notes, data.data]);
@@ -127,7 +129,7 @@ export default function Note() {
         >
           {/* Pin button */}
           <button
-            className="absolute bottom-2 right-8 cursor-pointer text-black"
+            className={`absolute bottom-2 right-8 cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleTogglePin}
           >
@@ -140,7 +142,7 @@ export default function Note() {
           {/* Color picker */}
           <div className="absolute bottom-2 right-14 flex items-center">
             <button
-              className="cursor-pointer text-black"
+              className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowColorPicker(!showColorPicker)}
             >
@@ -154,6 +156,18 @@ export default function Note() {
                   onClick={() => setShowColorPicker(false)}
                 />
                 <div className="absolute bottom-6 right-0 z-20 rounded-lg shadow-lg p-2 w-28 border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
+                  <div className="grid grid-cols-4 gap-1">
+                    {defaultColors.map(color => (
+                      <button
+                        key={color}
+                        className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: color }}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleColorChange(color)}
+                      />
+                    ))}
+                  </div>
+                  <div className="border-b border-gray-200 dark:border-gray-600 my-1.5" />
                   <div className="grid grid-cols-4 gap-1">
                     {colorPalette.map(color => (
                       <button
@@ -172,14 +186,14 @@ export default function Note() {
 
           {/* Delete button */}
           <button
-            className="text-black absolute bottom-2 right-2 cursor-pointer"
+            className={`absolute bottom-2 right-2 cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             onClick={handleDelete}
           >
             <FaRegTrashCan className="h-4 w-4 hover:text-blue-500" />
           </button>
 
           <textarea
-            className="h-full w-full bg-transparent resize-none outline-none text-black"
+            className={`h-full w-full bg-transparent resize-none outline-none ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             value={notes[focusedNote].content}
             onChange={(e) => {
               setNotes(notes.map((n, i) =>
