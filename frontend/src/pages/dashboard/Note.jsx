@@ -124,76 +124,11 @@ export default function Note() {
         </div>
       ) : (
         <div
-          className="flex-1 rounded-lg mt-2 p-2 relative"
+          className="flex-1 rounded-lg mt-2 p-2 flex flex-col min-h-0"
           style={{ backgroundColor: notes[focusedNote].color }}
         >
-          {/* Pin button */}
-          <button
-            className={`absolute bottom-2 right-8 cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleTogglePin}
-          >
-            {notes[focusedNote]?.Pinned
-              ? <BsPinAngleFill className="h-4 w-4 hover:text-blue-500" />
-              : <BsPinAngle className="h-4 w-4 hover:text-blue-500" />
-            }
-          </button>
-
-          {/* Color picker */}
-          <div className="absolute bottom-2 right-14 flex items-center">
-            <button
-              className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setShowColorPicker(!showColorPicker)}
-            >
-              <IoColorPaletteOutline className="h-4 w-4 hover:text-blue-500" />
-            </button>
-            {showColorPicker && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => setShowColorPicker(false)}
-                />
-                <div className="absolute bottom-6 right-0 z-20 rounded-lg shadow-lg p-2 w-28 border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
-                  <div className="grid grid-cols-4 gap-1">
-                    {defaultColors.map(color => (
-                      <button
-                        key={color}
-                        className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
-                        style={{ backgroundColor: color }}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleColorChange(color)}
-                      />
-                    ))}
-                  </div>
-                  <div className="border-b border-gray-200 dark:border-gray-600 my-1.5" />
-                  <div className="grid grid-cols-4 gap-1">
-                    {colorPalette.map(color => (
-                      <button
-                        key={color}
-                        className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
-                        style={{ backgroundColor: color }}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleColorChange(color)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Delete button */}
-          <button
-            className={`absolute bottom-2 right-2 cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
-            onClick={handleDelete}
-          >
-            <FaRegTrashCan className="h-4 w-4 hover:text-blue-500" />
-          </button>
-
           <textarea
-            className={`h-full w-full bg-transparent resize-none outline-none ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+            className={`flex-1 min-h-0 w-full bg-transparent resize-none outline-none ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             value={notes[focusedNote].content}
             onChange={(e) => {
               setNotes(notes.map((n, i) =>
@@ -202,6 +137,91 @@ export default function Note() {
             }}
             onBlur={handleBlur}
           />
+
+          {/* Bottom bar */}
+          <div className="flex items-center mt-1">
+            {/* Page indicators */}
+            <div className="flex-1 flex justify-center gap-1 items-center">
+              {notes.length > 1 && notes.map((_, i) => (
+                <button
+                  key={i}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setFocusedNote(i)}
+                  className={`rounded-full transition-all duration-200 cursor-pointer ${
+                    notes[focusedNote].color === '#171717' ? 'bg-white' : 'bg-black'
+                  } ${i === focusedNote ? 'w-2 h-2 opacity-80' : 'w-1.5 h-1.5 opacity-30 hover:opacity-60'}`}
+                />
+              ))}
+            </div>
+
+            {/* Icons */}
+            <div className="flex items-center gap-2">
+              {/* Color picker */}
+              <div className="relative flex items-center">
+                <button
+                  className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setShowColorPicker(!showColorPicker)}
+                >
+                  <IoColorPaletteOutline className="h-4 w-4 hover:text-blue-500" />
+                </button>
+                {showColorPicker && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => setShowColorPicker(false)}
+                    />
+                    <div className="absolute bottom-6 right-0 z-20 rounded-lg shadow-lg p-2 w-28 border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
+                      <div className="grid grid-cols-4 gap-1">
+                        {defaultColors.map(color => (
+                          <button
+                            key={color}
+                            className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
+                            style={{ backgroundColor: color }}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleColorChange(color)}
+                          />
+                        ))}
+                      </div>
+                      <div className="border-b border-gray-200 dark:border-gray-600 my-1.5" />
+                      <div className="grid grid-cols-4 gap-1">
+                        {colorPalette.map(color => (
+                          <button
+                            key={color}
+                            className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
+                            style={{ backgroundColor: color }}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleColorChange(color)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Pin button */}
+              <button
+                className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleTogglePin}
+              >
+                {notes[focusedNote]?.Pinned
+                  ? <BsPinAngleFill className="h-4 w-4 hover:text-blue-500" />
+                  : <BsPinAngle className="h-4 w-4 hover:text-blue-500" />
+                }
+              </button>
+
+              {/* Delete button */}
+              <button
+                className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                onClick={handleDelete}
+              >
+                <FaRegTrashCan className="h-4 w-4 hover:text-blue-500" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
