@@ -63,7 +63,7 @@ export default function Note() {
   const handleTogglePin = () => {
     const currentNote = notes[focusedNote];
     const newPinned = currentNote.Pinned ? 0 : 1;
-    api.updateNote(currentNote.id, currentNote.content, currentNote.color, newPinned)
+    api.updateNote(currentNote.id, currentNote.content, currentNote.color, newPinned, currentNote.title || '')
       .then(data => {
         if (data.success) {
           loadNotes().then(freshNotes => {
@@ -77,7 +77,7 @@ export default function Note() {
 
   const handleColorChange = (color) => {
     const currentNote = notes[focusedNote];
-    api.updateNote(currentNote.id, currentNote.content, color, currentNote.Pinned ? 1 : 0)
+    api.updateNote(currentNote.id, currentNote.content, color, currentNote.Pinned ? 1 : 0, currentNote.title || '')
       .then(data => {
         if (data.success) {
           setNotes(notes.map((n, i) => i === focusedNote ? { ...n, color } : n));
@@ -89,7 +89,7 @@ export default function Note() {
 
   const handleBlur = () => {
     const currentNote = notes[focusedNote];
-    api.updateNote(currentNote.id, currentNote.content, currentNote.color, currentNote.Pinned ? 1 : 0)
+    api.updateNote(currentNote.id, currentNote.content, currentNote.color, currentNote.Pinned ? 1 : 0, currentNote.title || '')
       .catch(err => console.error('Error saving note:', err));
   };
 
@@ -124,9 +124,29 @@ export default function Note() {
         </div>
       ) : (
         <div
-          className="flex-1 rounded-lg mt-2 p-2 flex flex-col min-h-0"
-          style={{ backgroundColor: notes[focusedNote].color }}
+          className="flex-1 rounded-lg mt-2 p-2 flex flex-col min-h-0 transition-all duration-300 ease-in-out"
+          style={{
+            backgroundColor: notes[focusedNote].color,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)'
+          }}
         >
+          <input
+            type="text"
+            placeholder="Add a title..."
+            className={`w-full bg-transparent resize-none outline-none font-bold text-lg border-b mb-1 pb-1  ${
+              notes[focusedNote].color === '#171717'
+                ? 'text-white border-white/30 placeholder:text-white/20'
+                : 'text-black border-black/20 placeholder:text-black/20'
+            } ${notes[focusedNote].title ? '' : 'border-transparent hover:border-black/20 focus:border-black/20'}`}
+            value={notes[focusedNote].title || ''}
+            onChange={(e) => {
+              setNotes(notes.map((n, i) =>
+                i === focusedNote ? { ...n, title: e.target.value } : n
+              ));
+            }}
+            onBlur={handleBlur}
+          />
+
           <textarea
             className={`flex-1 min-h-0 w-full bg-transparent resize-none outline-none ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             value={notes[focusedNote].content}
@@ -139,9 +159,10 @@ export default function Note() {
           />
 
           {/* Bottom bar */}
-          <div className="flex items-center mt-1">
+          <div className="relative flex items-center mt-1">
             {/* Page indicators */}
-            <div className="flex-1 flex justify-center gap-1 items-center">
+            <div className="absolute inset-0 flex justify-center gap-1 items-center pointer-events-none">
+              <div className="flex gap-1 items-center pointer-events-auto">
               {notes.length > 1 && notes.map((_, i) => (
                 <button
                   key={i}
@@ -152,10 +173,11 @@ export default function Note() {
                   } ${i === focusedNote ? 'w-2 h-2 opacity-80' : 'w-1.5 h-1.5 opacity-30 hover:opacity-60'}`}
                 />
               ))}
+              </div>
             </div>
 
             {/* Icons */}
-            <div className="flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2">
               {/* Color picker */}
               <div className="relative flex items-center">
                 <button

@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MdDriveFolderUpload } from "react-icons/md";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { MdOutlineEdit } from "react-icons/md";
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 import api from '../../api.js';
@@ -28,6 +29,9 @@ export default function Shelf() {
   const [numPages, setNumPages] = useState(null);
   const [focusedShelfItem, setFocusedItem] = useState(0);
   const [selectedYoutube, setSelectedYoutube] = useState(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const nameInputRef = useRef(null);
 
   useEffect(() => {
     api.getShelfItems()
@@ -73,6 +77,26 @@ export default function Shelf() {
         .catch(err => console.error('Error adding PDF item:', err));
     };
     reader.readAsDataURL(pdfFile);
+  };
+
+    {/* Added changing shelf item */}
+  const startEditing = (item) => {
+    setNameInput(item.fileName || (item.type === 'youtube' ? 'YouTube Video' : 'PDF'));
+    setEditingName(true);
+    setTimeout(() => nameInputRef.current?.select(), 0);
+  };
+
+  const saveItemName = (id) => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    api.updateShelfItem(id, trimmed)
+      .then(data => {
+        if (data.success) {
+          setShelfItems(shelfItems.map(i => i.id === id ? { ...i, fileName: trimmed } : i));
+        }
+      })
+      .catch(err => console.error('Error renaming item:', err))
+      .finally(() => setEditingName(false));
   };
 
   const deleteItem = (id) => {
@@ -288,9 +312,33 @@ export default function Shelf() {
                   </div>
                 )}
 
-                <p className="text-sm">
-                  {item.type === 'youtube' ? 'YouTube Video' : (item.fileName || 'PDF')}
-                </p>
+                <div className="flex items-center gap-1 group">
+                  {editingName ? (
+                    <input
+                      ref={nameInputRef}
+                      className="text-sm text-center bg-transparent border-b border-gray-400 outline-none w-40"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      onBlur={() => saveItemName(item.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveItemName(item.id);
+                        if (e.key === 'Escape') setEditingName(false);
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <p className="text-sm">
+                        {item.fileName || (item.type === 'youtube' ? 'YouTube Video' : 'PDF')}
+                      </p>
+                      <button
+                        className="opacity-0 group-hover:opacity-50 hover:opacity-100! transition-opacity cursor-pointer"
+                        onClick={() => startEditing(item)}
+                      >
+                        <MdOutlineEdit className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             );
           })()}

@@ -20,7 +20,7 @@ export const getNotes = async (req, res, next) => {
 export const createNote = async (req, res, next) => {
     
     try {
-        const { content, color, pinned } = req.body;
+        const { title, content, color, pinned } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required'});
@@ -32,6 +32,7 @@ export const createNote = async (req, res, next) => {
 
         const createNote = await prisma.note.create({
             data: {
+                title: title || '',
                 content: content,
                 color: color,
                 Pinned: pinned || 0
@@ -45,7 +46,7 @@ export const createNote = async (req, res, next) => {
 };
 export const updateNote = async (req, res, next) => {
     const { id } = req.params;
-    const { content, color, Pinned, pinned } = req.body;
+    const { title, content, color, Pinned, pinned } = req.body;
 
     try {
         const note = await prisma.note.findUnique({
@@ -61,6 +62,7 @@ export const updateNote = async (req, res, next) => {
         const updatedNote = await prisma.note.update({
             where: { id: parseInt(id) },
             data: {
+                title: title !== undefined ? title : note.title,
                 content: content,
                 color: color,
                 Pinned: Pinned ?? pinned
