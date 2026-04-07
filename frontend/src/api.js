@@ -150,6 +150,31 @@ class ApiClient {
   async deleteEvent(id) {
     return this.request(`/api/events/${id}`, { method: 'DELETE' });
   }
+
+  // Resources
+  async getResources() {
+    return this.request('/api/resources');
+  }
+
+  async createResources(class_name, description, instructor, schedule, semester) {
+    return this.request('/api/resources', {
+      method: 'POST',
+      body: {class_name, description, instructor, schedule, semester},
+    });
+  }
+
+  async updateResources(id, data) {
+    return this.request(`/api/resources/${id}`, {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
+  async deleteResources(id) {
+    return this.request(`/api/resources/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export default new ApiClient();

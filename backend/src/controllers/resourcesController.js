@@ -35,10 +35,10 @@ export const createResource = async (req, res) => {
         const newResource = await prisma.resources.create({
             data: {
                 className: class_name,
-                description: description,
-                instructor: instructor,
-                schedule: schedule,
-                semester: semester
+                description,
+                instructor,
+                schedule,
+                semester
             }
         });
 
