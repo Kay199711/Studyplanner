@@ -153,25 +153,25 @@ class ApiClient {
 
   // Resources
   async getResources() {
-    return this.request('/api/resources');
+    return this.request('/api/Resources');
   }
 
   async createResources(class_name, description, instructor, schedule, semester) {
-    return this.request('/api/resources', {
+    return this.request('/api/Resources', {
       method: 'POST',
       body: {class_name, description, instructor, schedule, semester},
     });
   }
 
   async updateResources(id, data) {
-    return this.request(`/api/resources/${id}`, {
+    return this.request(`/api/Resources/${id}`, {
       method: 'PUT',
       body: data,
     });
   }
 
   async deleteResources(id) {
-    return this.request(`/api/resources/${id}`, {
+    return this.request(`/api/Resources/${id}`, {
       method: 'DELETE',
     });
   }

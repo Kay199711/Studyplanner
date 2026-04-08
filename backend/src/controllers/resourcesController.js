@@ -1,13 +1,13 @@
 import prisma from '../config/database.js';
 
-//GET, fetching all resources
+//GET, fetching all resources (Resources)
 export const getResources = async (req, res) => {
     try {
-        const resources = await prisma.resources.findMany({
+        const Resources = await prisma.Resources.findMany({
             orderBy: {className: "asc"}
         });
 
-        const mapped = resources.map(r => ({
+        const mapped = Resources.map(r => ({
             resource_id: r.resourceID,
             class_name: r.className,
             description: r.description,
@@ -23,7 +23,7 @@ export const getResources = async (req, res) => {
     }
 };
 
-//POST, create new resource
+//POST, create new resource (Resources)
 export const createResource = async (req, res) => {
     const {class_name, description, instructor, schedule, semester} = req.body;
 
@@ -32,7 +32,7 @@ export const createResource = async (req, res) => {
     }
     
     try {
-        const newResource = await prisma.resources.create({
+        const newResource = await prisma.Resources.create({
             data: {
                 className: class_name,
                 description,
@@ -58,19 +58,19 @@ export const createResource = async (req, res) => {
     }
 };
 
-//PUT, updating an existing resource
+//PUT, updating an existing resource (Resources)
 export const updateResource = async(req, res) => {
     const {id} = req.params;
 
     try {
-        const existing = await prisma.resources.findUnique({
+        const existing = await prisma.Resources.findUnique({
             where: {resourceID: (id)}
         });
 
         if (!existing) {
             return res.status(404).json({error: "given resourceID does not exist"});
         }
-        const updated = await prisma.resources.update ({
+        const updated = await prisma.Resources.update ({
             where: {resourceID: id},
             data: {
                 className: req.body.class_name ?? existing.className,
@@ -97,12 +97,12 @@ export const updateResource = async(req, res) => {
     }
 };
 
-//DELETE, deleting a resource
+//DELETE, deleting a resource (Resources)
 export const deleteResource = async(req, res) => {
     const {id} = req.params;
 
     try {
-        const existing = await prisma.resources.findUnique({
+        const existing = await prisma.Resources.findUnique({
             where: {resourceID: id}
         });
 
@@ -110,7 +110,7 @@ export const deleteResource = async(req, res) => {
             return res.status(404).json({error: "given resourceID does not exist"});
         }
 
-        await prisma.resources.delete({
+        await prisma.Resources.delete({
             where: {resourceID: id}
         });
 
