@@ -300,7 +300,7 @@ export default function Shelf() {
                               onClick={() => setSelectedYoutube(item.url)}
                             />
                             <button
-                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
+                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-blue-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
                               onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
                             >
                               <FaRegTrashCan className="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ export default function Shelf() {
                               />
                             </Document>
                             <button
-                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
+                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-blue-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
                               onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
                             >
                               <FaRegTrashCan className="w-3.5 h-3.5" />
