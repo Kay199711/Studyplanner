@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MdDriveFolderUpload } from "react-icons/md";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { MdOutlineEdit } from "react-icons/md";
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 import api from '../../api.js';
@@ -28,6 +29,9 @@ export default function Shelf() {
   const [numPages, setNumPages] = useState(null);
   const [focusedShelfItem, setFocusedItem] = useState(0);
   const [selectedYoutube, setSelectedYoutube] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [nameInput, setNameInput] = useState('');
+  const nameInputRef = useRef(null);
 
   useEffect(() => {
     api.getShelfItems()
@@ -73,6 +77,26 @@ export default function Shelf() {
         .catch(err => console.error('Error adding PDF item:', err));
     };
     reader.readAsDataURL(pdfFile);
+  };
+
+    {/* Added changing shelf item */}
+  const startEditing = (item) => {
+    setNameInput(item.fileName || (item.type === 'youtube' ? 'YouTube Video' : 'PDF'));
+    setEditingId(item.id);
+    setTimeout(() => nameInputRef.current?.select(), 0);
+  };
+
+  const saveItemName = (id) => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    api.updateShelfItem(id, trimmed)
+      .then(data => {
+        if (data.success) {
+          setShelfItems(shelfItems.map(i => i.id === id ? { ...i, fileName: trimmed } : i));
+        }
+      })
+      .catch(err => console.error('Error renaming item:', err))
+      .finally(() => setEditingId(null));
   };
 
   const deleteItem = (id) => {
@@ -241,71 +265,133 @@ export default function Shelf() {
           </div>
         )}
 
-        {focusedShelfItem > 0 && (
-          <button
-            className="text-5xl font-light px-2 cursor-pointer hover:opacity-50"
-            onClick={() => setFocusedItem(focusedShelfItem - 1)}
-          >
-            ‹
-          </button>
-        )}
+        {/* Empty SHelf Text */}
+        {shelfItems.length === 0 ? (
+          <p className="flex-1 text-center text-sm text-gray-400 dark:text-gray-500 select-none">
+            No resources yet. Click + to add one.
+          </p>
+        ) : (
+          <>
+            {focusedShelfItem > 0 && (
+              <button
+                className="text-5xl font-light px-2 cursor-pointer hover:opacity-50 shrink-0"
+                onClick={() => setFocusedItem(focusedShelfItem - 1)}
+              >
+                ‹
+              </button>
+            )}
 
-        {/* Item Display */}
-        <div className="flex flex-1 gap-4 justify-center items-center">
-          {shelfItems.length > 0 && (() => {
-            const item = shelfItems[focusedShelfItem];
-            const index = focusedShelfItem;
-            return (
-              <div key={index} className="relative flex flex-col gap-1 w-[85%] p-2 shrink-0 items-center justify-center overflow-hidden max-h-full">
-                <button
-                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 z-10"
-                  onClick={() => deleteItem(item.id)}
-                >
-                  <FaRegTrashCan className="w-4 h-4" />
-                </button>
+            {/* Item display */}
+            <div className="flex flex-1 overflow-hidden">
+              <div
+                className="flex transition-transform duration-300 ease-in-out w-full"
+                style={{ transform: `translateX(-${focusedShelfItem * 100}%)` }}
+              >
+                {shelfItems.map((item) => (
+                  <div key={item.id} className="flex-none w-full flex justify-center items-center">
+                    <div className="flex flex-col items-center">
+                      <div className="inline-flex flex-col gap-1 items-center p-2 hover:scale-105 transition-transform duration-200 shadow-md hover:shadow-xl">
+                        {item.type === 'youtube' ? (
+                          <div className="relative group">
+                            <img
+                              src={getYoutubeThumbnail(item.url)}
+                              alt="YouTube thumbnail"
+                              className="rounded-lg object-cover cursor-pointer max-h-64 w-auto"
+                              onClick={() => setSelectedYoutube(item.url)}
+                            />
+                            <button
+                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-blue-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
+                              onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
+                            >
+                              <FaRegTrashCan className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            className="relative group cursor-pointer"
+                            style={{ height: '260px', width: '200px', overflow: 'hidden', borderRadius: '8px' }}
+                            onClick={() => setSelectedPdf(`data:application/pdf;base64,${item.fileData}`)}
+                          >
+                            <Document file={`data:application/pdf;base64,${item.fileData}`}>
+                              <Page
+                                pageNumber={1}
+                                width={200}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                              />
+                            </Document>
+                            <button
+                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-blue-500/80 text-white rounded-full p-1.5 cursor-pointer z-10"
+                              onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
+                            >
+                              <FaRegTrashCan className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
 
-                {item.type === 'youtube' ? (
-                  <img
-                    src={getYoutubeThumbnail(item.url)}
-                    alt="YouTube thumbnail"
-                    className="rounded-lg w-full object-cover cursor-pointer"
-                    onClick={() => setSelectedYoutube(item.url)}
-                  />
-                ) : (
-                  <div
-                    className="cursor-pointer"
-                    style={{ position: 'relative', height: '260px', width: '200px', overflow: 'hidden', borderRadius: '8px' }}
-                    onClick={() => setSelectedPdf(`data:application/pdf;base64,${item.fileData}`)}
-                  >
-                    <Document file={`data:application/pdf;base64,${item.fileData}`}>
-                      <Page
-                        pageNumber={1}
-                        width={200}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                      />
-                    </Document>
+                        <div className="flex items-center gap-1 group">
+                          {editingId === item.id ? (
+                            <input
+                              ref={nameInputRef}
+                              className="text-sm text-center bg-transparent border-b border-gray-400 outline-none w-40"
+                              value={nameInput}
+                              onChange={(e) => setNameInput(e.target.value)}
+                              onBlur={() => saveItemName(item.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') saveItemName(item.id);
+                                if (e.key === 'Escape') setEditingId(null);
+                              }}
+                            />
+                          ) : (
+                            <>
+                              <p className="text-sm">
+                                {item.fileName || (item.type === 'youtube' ? 'YouTube Video' : 'PDF')}
+                              </p>
+                              <button
+                                className="opacity-0 group-hover:opacity-50 hover:opacity-100! transition-opacity cursor-pointer"
+                                onClick={() => startEditing(item)}
+                              >
+                                <MdOutlineEdit className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                )}
-
-                <p className="text-sm">
-                  {item.type === 'youtube' ? 'YouTube Video' : (item.fileName || 'PDF')}
-                </p>
+                ))}
               </div>
-            );
-          })()}
-        </div>
+            </div>
 
-        {focusedShelfItem < shelfItems.length - 1 && (
-          <button
-            className="text-5xl font-light px-2 cursor-pointer hover:opacity-50"
-            onClick={() => setFocusedItem(focusedShelfItem + 1)}
-          >
-            ›
-          </button>
+            {focusedShelfItem < shelfItems.length - 1 && (
+              <button
+                className="text-5xl font-light px-2 cursor-pointer hover:opacity-50 shrink-0"
+                onClick={() => setFocusedItem(focusedShelfItem + 1)}
+              >
+                ›
+              </button>
+            )}
+          </>
         )}
 
       </div>
+
+      {/* page indicator */}
+      {shelfItems.length > 1 && (
+        <div className="flex justify-center gap-1 items-center pt-2">
+          {shelfItems.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setFocusedItem(i)}
+              className={`rounded-full transition-all duration-200 cursor-pointer bg-gray-600 dark:bg-gray-300 ${
+                i === focusedShelfItem
+                  ? 'w-2 h-2 opacity-80'
+                  : 'w-1.5 h-1.5 opacity-30 hover:opacity-60'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

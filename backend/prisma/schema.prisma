@@ -18,6 +18,7 @@ model User {
 
 model Note {
   id          Int       @id @default(autoincrement())
+  title       String    @default("")
   content     String
   color       String
   Pinned      Int
