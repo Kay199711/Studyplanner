@@ -4,7 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './middleware/ProtectedRoute';
 import Dashboard from './pages/dashboard/Dashboard';
 import Calendar from './pages/calendar/Calendar';
-import Resources from './pages/resources/ResourcesMainPage';
+import Resources from './pages/resources/Resources';
 import Landing from './pages/landing/Landing';
 import Layout from './Layout';
 
