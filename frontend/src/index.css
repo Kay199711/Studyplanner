@@ -1,16 +1,32 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark { &:where(.dark, .dark *) }
 
-@theme {
-  /* Light mode colors */
+:root {
   --color-primary: #ffffff;
   --color-secondary: #f2f2f2;
   --color-hover: #e8e8e8;
   --color-icon: #7e7e7e;
   --color-txt-primary: #373737;
   --color-brd-primary: #ededed;
-  
-  /* Dark mode colors */
+}
+
+.dark {
+  --color-primary: #212121;
+  --color-secondary: #171717;
+  --color-hover: #4b4b4b;
+  --color-icon: #aeaeae;
+  --color-txt-primary: #ffffff;
+  --color-brd-primary: #2b2b2b;
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-hover: var(--color-hover);
+  --color-icon: var(--color-icon);
+  --color-txt-primary: var(--color-txt-primary);
+  --color-brd-primary: var(--color-brd-primary);
+
   --color-primary-dark: #212121;
   --color-secondary-dark: #171717;
   --color-hover-dark: #4b4b4b;
