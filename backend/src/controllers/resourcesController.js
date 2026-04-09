@@ -64,14 +64,14 @@ export const updateResource = async(req, res) => {
 
     try {
         const existing = await prisma.Resources.findUnique({
-            where: {resourceID: (id)}
+            where: {resourceID: Number(id)}
         });
 
         if (!existing) {
             return res.status(404).json({error: "given resourceID does not exist"});
         }
         const updated = await prisma.Resources.update ({
-            where: {resourceID: id},
+            where: {resourceID: Number(id)},
             data: {
                 className: req.body.class_name ?? existing.className,
                 description: req.body.description ?? existing.description,
@@ -103,7 +103,7 @@ export const deleteResource = async(req, res) => {
 
     try {
         const existing = await prisma.Resources.findUnique({
-            where: {resourceID: id}
+            where: {resourceID: Number(id)}
         });
 
         if (!existing) {
