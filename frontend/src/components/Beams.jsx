@@ -1,4 +1,7 @@
 /* eslint-disable react/no-unknown-property */
+
+/* IMPORTANT: NEED TO RUN "npm install three @react-three/fiber @react-three/drei" FOR THE DEPENDENCIES */
+
 import { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, useState } from 'react';
 
 import * as THREE from 'three';
