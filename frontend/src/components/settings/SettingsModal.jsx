@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { IoCloseSharp } from "react-icons/io5";
+import GeneralTab from './GeneralTab.jsx';
 import ProfileTab from './ProfileTab.jsx';
 import PreferencesTab from './PreferencesTab.jsx';
 
 export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
-  const [activeTab, setActiveTab] = useState('Profile');
+  const [activeTab, setActiveTab] = useState('General');
   
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -18,7 +19,7 @@ export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const tabs = ['Profile', 'Preferences'];
+  const tabs = ['General', 'Profile', 'Preferences'];
   const isActive = (tab) => activeTab === tab;
 
   if (!isOpen) return null;
@@ -65,6 +66,7 @@ export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
           </aside>
   
           <div className="space-y-2 text-center">
+            {activeTab === 'General' && <GeneralTab isDark={isDark} setIsDark={setIsDark} />}
             {activeTab === 'Profile' && <ProfileTab />}
             {activeTab === 'Preferences' && <PreferencesTab />}
           </div>

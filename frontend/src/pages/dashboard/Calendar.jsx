@@ -1,7 +1,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { IoIosAddCircleOutline } from "react-icons/io";
-import api from '../../api.js';
 
+// ---- EVENT DATA TYPE (matches backend CalendarEvents table) ----
+// {
+//   event_id: string,
+//   title: string,
+//   description: string,
+//   start_date: string,  // ISO format YYYY-MM-DDTHH:MM:SS
+//   end_date: string,    // ISO format YYYY-MM-DDTHH:MM:SS
+//   all_day: boolean,
+//   created_at: string,
+//   updated_at: string,
+// }
+
+// ---- FUTURE PROPS ----
+// When Dashboard wires everything together, Calendar will accept:
+// - events: Event[]              → from shared context or parent
+// - onEventAdd: (e) => void      → callback to notify parent
+// - onEventDelete: (id) => void  → callback to notify parent
+// - userId: string               → for backend API calls
+
+// ---- HELPERS ----
 const to12Hr = (time24) => {
   if (!time24) return '';
   const [h, m] = time24.split(':').map(Number);
@@ -10,30 +29,14 @@ const to12Hr = (time24) => {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`;
 };
 
-const toDateStr = (raw) => {
-  if (!raw) return '';
-  return new Date(raw).toISOString().split('T')[0];
-};
-
-const toTimeStr = (raw) => {
-  if (!raw) return '00:00';
-  return new Date(raw).toISOString().split('T')[1].slice(0, 5);
-};
-
-const mapEvent = (e) => ({
-  id: String(e.event_id),
-  title: e.title,
-  date: toDateStr(e.start_date),
-  startTime: toTimeStr(e.start_date),
-  endTime: toTimeStr(e.end_date),
-  completed: false,
-  allDay: e.all_day,
-});
+const API_URL = 'http://localhost:3000';
 
 export default function Calendar() {
+
+  // ---- STATE ----
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
   const [selectedDay, setSelectedDay] = useState(null);
   const [calendarView, setCalendarView] = useState('month');
   const [newEvent, setNewEvent] = useState({ title: '', date: '', startTime: '', endTime: '' });
@@ -41,14 +44,33 @@ export default function Calendar() {
   const dropdownRef = useRef(null);
   const dayViewRef = useRef(null);
 
+  // ---- FETCH EVENTS ON LOAD ----
   useEffect(() => {
-    setLoading(true);
-    api.getEvents()
-      .then(data => setEvents(data.map(mapEvent)))
-      .catch(err => console.error('Failed to fetch events:', err))
-      .finally(() => setLoading(false));
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/events`);
+        const data = await res.json();
+        setEvents(data.map(e => ({
+          id: String(e.event_id),
+          title: e.title,
+          date: e.start_date?.split('T')[0],
+          startTime: e.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+          endTime: e.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+          completed: false,
+          allDay: e.all_day,
+          source: 'calendar',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
+  // ---- CLOSE DROPDOWN ON OUTSIDE CLICK ----
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -59,35 +81,57 @@ export default function Calendar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // ---- AUTO SCROLL TO NEAREST TASK WITH 3 SLOT BUFFER ----
   useEffect(() => {
     if (calendarView !== 'day' || !dayViewRef.current) return;
-    const dateStr = formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+    const dateStr = formatDateStr(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
+
     const incomplete = events
       .filter(e => e.date === dateStr && !e.completed)
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
     setTimeout(() => {
       if (!dayViewRef.current) return;
+      if (incomplete.length === 0) {
+        const slotHeight = dayViewRef.current.scrollHeight / 24;
+        dayViewRef.current.scrollTop = 8 * slotHeight;
+        return;
+      }
+      const earliestHour = parseInt(incomplete[0].startTime.split(':')[0]);
+      const scrollToHour = Math.max(0, earliestHour - 3);
       const slotHeight = dayViewRef.current.scrollHeight / 24;
-      const scrollHour = incomplete.length > 0
-        ? Math.max(0, parseInt(incomplete[0].startTime.split(':')[0]) - 3)
-        : 8;
-      dayViewRef.current.scrollTop = scrollHour * slotHeight;
+      dayViewRef.current.scrollTop = scrollToHour * slotHeight;
     }, 50);
+
   }, [calendarView, currentDate, events]);
 
-  const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  const getFirstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  // ---- CALENDAR HELPERS ----
+  const getDaysInMonth = (date) =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+  const getFirstDayOfMonth = (date) =>
+    new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
   const formatDateStr = (year, month, day) =>
     `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
   const formatTimeDisplay = (startTime, endTime) => {
     if (!startTime || !endTime) return '';
     if (startTime === '00:00' && endTime === '23:59') return 'All day';
     return `${to12Hr(startTime)} - ${to12Hr(endTime)}`;
   };
-  const getEventsForDay = (dateStr) => events.filter(e => e.date === dateStr);
+
+  const getEventsForDay = (dateStr) =>
+    events.filter(e => e.date === dateStr);
+
   const getWeekDays = () => {
     const day = currentDate.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
+    const diff = (day === 0) ? -6 : 1 - day;
     const monday = new Date(currentDate);
     monday.setDate(currentDate.getDate() + diff);
     return Array.from({ length: 7 }, (_, i) => {
@@ -97,62 +141,107 @@ export default function Calendar() {
     });
   };
 
+  // ---- NAVIGATION ----
   const prevPeriod = () => {
-    if (calendarView === 'month') setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-    else if (calendarView === 'week') setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7));
-    else setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1));
+    if (calendarView === 'month') {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    } else if (calendarView === 'week') {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7));
+    } else {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1));
+    }
   };
 
   const nextPeriod = () => {
-    if (calendarView === 'month') setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-    else if (calendarView === 'week') setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7));
-    else setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1));
+    if (calendarView === 'month') {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    } else if (calendarView === 'week') {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7));
+    } else {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1));
+    }
   };
 
-  const addEvent = () => {
+  // ---- ADD EVENT ----
+  const addEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
+
     const startDateTime = `${newEvent.date}T${newEvent.startTime || '00:00'}:00`;
     const endDateTime = `${newEvent.date}T${newEvent.endTime || '23:59'}:00`;
     const isAllDay = !newEvent.startTime && !newEvent.endTime;
-    api.createEvent(newEvent.title, startDateTime, endDateTime, isAllDay)
-      .then(saved => {
-        setEvents(prev => [...prev, mapEvent(saved)]);
-        setNewEvent({ title: '', date: '', startTime: '', endTime: '' });
-        setShowDropdown(false);
-      })
-      .catch(err => console.error('Failed to add event:', err));
+
+    try {
+      const res = await fetch(`${API_URL}/api/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newEvent.title,
+          start_date: startDateTime,
+          end_date: endDateTime,
+          all_day: isAllDay,
+        }),
+      });
+      const saved = await res.json();
+      setEvents(prev => [...prev, {
+        id: String(saved.event_id),
+        title: saved.title,
+        date: saved.start_date?.split('T')[0],
+        startTime: saved.start_date?.split('T')[1]?.slice(0, 5) || '00:00',
+        endTime: saved.end_date?.split('T')[1]?.slice(0, 5) || '23:59',
+        completed: false,
+        allDay: saved.all_day,
+        source: 'calendar',
+      }]);
+    } catch (err) {
+      console.error('Failed to add event:', err);
+    }
+
+    setNewEvent({ title: '', date: '', startTime: '', endTime: '' });
+    setShowDropdown(false);
   };
 
-  const deleteEvent = (id) => {
-    api.deleteEvent(id)
-      .then(() => setEvents(prev => prev.filter(e => e.id !== id)))
-      .catch(err => console.error('Failed to delete event:', err));
+  // ---- DELETE EVENT ----
+  const deleteEvent = async (id) => {
+    try {
+      await fetch(`${API_URL}/api/events/${id}`, { method: 'DELETE' });
+      setEvents(prev => prev.filter(e => e.id !== id));
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    }
   };
 
+  // ---- TOGGLE COMPLETE ----
   const toggleComplete = (id) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
+    setEvents(prev => prev.map(e =>
+      e.id === id ? { ...e, completed: !e.completed } : e
+    ));
   };
 
+  // ---- CONSTANTS ----
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+                      'July', 'August', 'September', 'October', 'November', 'December'];
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   const hours = Array.from({ length: 24 }, (_, i) => {
     const period = i >= 12 ? 'PM' : 'AM';
     const hour = i % 12 || 12;
     return { label: `${hour} ${period}`, value: String(i).padStart(2, '0') };
   });
 
+  // ---- SELECTED DAY PANEL ----
   const renderDayInfo = () => {
     if (!selectedDay) return (
       <div className="mt-3 p-3 rounded-lg border border-brd-primary dark:border-brd-primary-dark bg-secondary dark:bg-secondary-dark">
         <p className="text-xs opacity-40 text-center">Click a day to see details</p>
       </div>
     );
+
     const dateStr = formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), selectedDay);
     const dayEvents = getEventsForDay(dateStr);
     const weekday = new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay)
       .toLocaleDateString('en-US', { weekday: 'long' });
     const fullDate = `${weekday}, ${monthNames[currentDate.getMonth()]} ${selectedDay}, ${currentDate.getFullYear()}`;
+
     return (
       <div className="mt-3 p-3 rounded-lg border border-brd-primary dark:border-brd-primary-dark bg-secondary dark:bg-secondary-dark">
         <div className="flex items-center justify-between mb-2">
@@ -183,6 +272,7 @@ export default function Calendar() {
     );
   };
 
+  // ---- MONTH VIEW ----
   const renderMonthView = () => (
     <div className="flex flex-col">
       <div className="grid grid-cols-7 border border-brd-primary dark:border-brd-primary-dark rounded-t-lg overflow-hidden">
@@ -211,7 +301,9 @@ export default function Calendar() {
               }`}
             >
               <span className="text-xs font-bold">{day}</span>
-              {dayEvents.length > 0 && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-0.5" />}
+              {dayEvents.length > 0 && (
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-0.5" />
+              )}
             </div>
           );
         })}
@@ -220,6 +312,7 @@ export default function Calendar() {
     </div>
   );
 
+  // ---- WEEK VIEW ----
   const renderWeekView = () => {
     const weekDays = getWeekDays();
     return (
@@ -228,9 +321,14 @@ export default function Calendar() {
           const dateStr = formatDateStr(d.getFullYear(), d.getMonth(), d.getDate());
           const dayEvents = getEventsForDay(dateStr);
           return (
-            <div key={i} className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-primary dark:bg-primary-dark flex-1">
+            <div
+              key={i}
+              className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-primary dark:bg-primary-dark flex-1"
+            >
               <div className="w-16 shrink-0">
-                <span className="text-xs font-medium opacity-70 block">{d.toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                <span className="text-xs font-medium opacity-70 block">
+                  {d.toLocaleDateString('en-US', { weekday: 'short' })}
+                </span>
                 <span className="text-sm font-bold">{d.getDate()}</span>
               </div>
               <div className="flex-1 flex flex-wrap gap-1 items-center">
@@ -251,15 +349,40 @@ export default function Calendar() {
     );
   };
 
+  // ---- DAY VIEW ----
   const renderDayView = () => {
-    const dateStr = formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-    const sortedEvents = [...getEventsForDay(dateStr)].sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const dateStr = formatDateStr(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
+    const dayEvents = getEventsForDay(dateStr);
+    const sortedEvents = [...dayEvents].sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    const hourEventMap = {};
+    hours.forEach(hour => {
+      const match = sortedEvents.find(e =>
+        e.startTime && e.startTime.startsWith(hour.value)
+      );
+      hourEventMap[hour.value] = match || null;
+    });
+
     return (
-      <div ref={dayViewRef} className="rounded-lg border border-brd-primary dark:border-brd-primary-dark w-full flex-1 min-h-0 overflow-y-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3b82f6 transparent' }}>
+      <div
+        ref={dayViewRef}
+        className="rounded-lg border border-brd-primary dark:border-brd-primary-dark w-full flex-1 min-h-0 overflow-y-scroll"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#3b82f6 transparent',
+        }}
+      >
         {hours.map((hour) => {
-          const event = sortedEvents.find(e => e.startTime?.startsWith(hour.value));
+          const event = hourEventMap[hour.value];
           return (
-            <div key={hour.value} className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 h-10">
+            <div
+              key={hour.value}
+              className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 h-10"
+            >
               <span className="text-xs opacity-50 w-14 shrink-0">{hour.label}</span>
               <div className="flex-1">
                 {event && (
@@ -275,8 +398,10 @@ export default function Calendar() {
     );
   };
 
+  // ---- RENDER ----
   return (
     <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl h-full p-4 bg-primary dark:bg-primary-dark gap-3 overflow-hidden">
+
       {/* Header */}
       <div className="flex items-center justify-between w-full relative" ref={dropdownRef}>
         <p className="font-bold text-lg">
@@ -287,7 +412,10 @@ export default function Calendar() {
         <div className="flex items-center gap-2">
           <button onClick={prevPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">←</button>
           <button onClick={nextPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">→</button>
-          <IoIosAddCircleOutline className="w-6 h-6 cursor-pointer hover:text-blue-500" onClick={() => setShowDropdown(prev => !prev)} />
+          <IoIosAddCircleOutline
+            className="w-6 h-6 cursor-pointer hover:text-blue-500"
+            onClick={() => setShowDropdown(prev => !prev)}
+          />
         </div>
 
         {/* Add Event Dropdown */}
@@ -322,8 +450,18 @@ export default function Calendar() {
               />
             </div>
             <div className="flex gap-2">
-              <button onClick={addEvent} className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add</button>
-              <button onClick={() => setShowDropdown(false)} className="flex-1 px-3 py-2 text-sm bg-secondary dark:bg-secondary-dark rounded-md border border-brd-primary dark:border-brd-primary-dark">Cancel</button>
+              <button
+                onClick={addEvent}
+                className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowDropdown(false)}
+                className="flex-1 px-3 py-2 text-sm bg-secondary dark:bg-secondary-dark rounded-md border border-brd-primary dark:border-brd-primary-dark"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         )}
@@ -346,15 +484,18 @@ export default function Calendar() {
         ))}
       </div>
 
+      {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-8">
           <p className="text-sm opacity-50">Loading events...</p>
         </div>
       )}
 
+      {/* Calendar View */}
       {!loading && calendarView === 'month' && renderMonthView()}
       {!loading && calendarView === 'week' && renderWeekView()}
       {!loading && calendarView === 'day' && renderDayView()}
+
     </div>
   );
 }

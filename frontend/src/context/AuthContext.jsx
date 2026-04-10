@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api.js';
+import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext(null);
 
@@ -7,34 +7,31 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if user is logged in on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      setUser(parsed);
-      localStorage.setItem('userId', parsed.id);
+      setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
-  const register = async (name, email, password) => {
-    try {
-      const data = await api.register(name, email, password);
-      setUser(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('userId', data.user.id);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-
   const login = async (email, password) => {
     try {
-      const data = await api.login(email, password);
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
       setUser(data.user);
       localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('userId', data.user.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -43,23 +40,19 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.logout();
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+      });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
       localStorage.removeItem('user');
-      localStorage.removeItem('userId');
     }
   };
 
-  const updateUser = (updated) => {
-    setUser(updated);
-    localStorage.setItem('user', JSON.stringify(updated));
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -72,3 +65,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
