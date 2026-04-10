@@ -16,8 +16,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-<<<<<<< HEAD
-=======
+
 model Note {
   id          Int       @id @default(autoincrement())
   content     String
