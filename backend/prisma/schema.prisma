@@ -36,7 +36,6 @@ model ShelfItem {
   updatedAt DateTime @updatedAt
 }
 
->>>>>>> 0647eec6ca7e704e3552bc9037248dc00fb526a9
 model CalendarEvent {
   id          String   @id @default(uuid())
   title       String
