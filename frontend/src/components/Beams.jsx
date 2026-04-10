@@ -170,11 +170,15 @@ const Beams = ({
     return () => observer.disconnect();
   }, []);
 
-  const effectiveBackgroundColor = isDarkMode ? '#000000' : '#ffffff';
-  const effectiveBeamColor = isDarkMode ? '#000000' : '#FFCBA4';
+  const effectiveBackgroundColor = isDarkMode ? '#000000' : '#f7f7f7';
+  const effectiveBeamColor = isDarkMode ? '#000000' : '#f7f7f7';
   const effectiveLightColor = isDarkMode ? lightColor : '#ffffff';
-  const effectiveNoiseIntensity = isDarkMode ? noiseIntensity : noiseIntensity * 0.45;
-  const effectiveAmbientIntensity = isDarkMode ? 1 : 0.7;
+  
+  // These variables were used to adjust the beams apearance based on the theme, redundant variables can be removed in the future
+  const effectiveNoiseIntensity = isDarkMode ? noiseIntensity : noiseIntensity * 0.30;
+  const effectiveAmbientIntensity = isDarkMode ? 1 : 10;
+  // const effectiveEnvMapIntensity = isDarkMode ? 10 : 10;
+  const effectiveMetalness = isDarkMode ? 0.3 : 0.8;
 
   const beamMaterial = useMemo(
     () =>
@@ -223,14 +227,15 @@ const Beams = ({
           diffuse: new THREE.Color(...hexToNormalizedRGB(effectiveBeamColor)),
           time: { shared: true, mixed: true, linked: true, value: 0 },
           roughness: 0.3,
-          metalness: 0.3,
+          metalness: effectiveMetalness,
           uSpeed: { shared: true, mixed: true, linked: true, value: speed },
           envMapIntensity: 10,
           uNoiseIntensity: effectiveNoiseIntensity,
           uScale: scale
         }
       }),
-    [speed, scale, effectiveBeamColor, effectiveNoiseIntensity]
+    [speed, scale, effectiveBeamColor, effectiveNoiseIntensity, effectiveMetalness]
+    
   );
 
   return (
