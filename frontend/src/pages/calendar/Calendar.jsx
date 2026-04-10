@@ -8,11 +8,7 @@ export default function Calendar() {
   const calendarRef = useRef(null);
 
   return (
-<<<<<<< HEAD
     <div className="p-4 md:p-2 bg-[#edede8ff] dark:bg-primary-dark">
-=======
-    <div className="p-4 md:p-2 bg-secondary dark:bg-primary-dark">
->>>>>>> 0647eec6ca7e704e3552bc9037248dc00fb526a9
       <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl p-4 bg-primary dark:bg-primary-dark">
         <div className="fullcalendar-wrapper">
           <FullCalendar
@@ -33,7 +29,3 @@ export default function Calendar() {
     </div>
   );
 }
-<<<<<<< HEAD
-}
-=======
->>>>>>> 0647eec6ca7e704e3552bc9037248dc00fb526a9
