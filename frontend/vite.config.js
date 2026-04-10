@@ -17,4 +17,14 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom']
   },
+  optimizeDeps: {
+    force: true,
+    include: [
+      '@fullcalendar/core',
+      '@fullcalendar/react',
+      '@fullcalendar/daygrid',
+      '@fullcalendar/timegrid',
+      '@fullcalendar/interaction',
+    ],
+  },
 })
