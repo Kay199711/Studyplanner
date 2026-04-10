@@ -132,7 +132,7 @@ export default function Resources() {
     <div className="p-4">
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/45 flex justify-center items-center z-50">
-          <div className="p-6 w-96 flex flex-col gap-3 border bg-gray-100 dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
+          <div className="p-6 w-96 flex flex-col gap-3 border bg-primary  dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
             <div className="flex justify-between items-center w-full">
               <h2 className="font-semibold text-lg">Enter Class Information</h2>
               <button onClick={() => setIsModalOpen(false)}>
@@ -147,7 +147,8 @@ export default function Resources() {
                 setForm({ ...form, class_name: e.target.value })
               }
               placeholder="Class Name"
-              className="font-bold text-2xl text-black-900"
+              className="px-3 py-2 rounded-md border bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark
+              border-brd-primary dark:border-brd-primary-dark"
             />
 
             <div className="flex flex-col gap-1 mb-3">
@@ -158,7 +159,8 @@ export default function Resources() {
                   setForm({ ...form, description: e.target.value })
                 }
                 placeholder="Description"
-                className="text-black-900"
+                className="px-3 py-2 rounded-md border bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark
+                border-brd-primary dark:border-brd-primary-dark"
               />
 
               <input
@@ -168,7 +170,8 @@ export default function Resources() {
                   setForm({ ...form, instructor: e.target.value })
                 }
                 placeholder="Instructor"
-                className="text-black-900"
+                className="px-3 py-2 rounded-md border bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark
+                border-brd-primary dark:border-brd-primary-dark"
               />
 
               <input
@@ -178,7 +181,8 @@ export default function Resources() {
                   setForm({ ...form, schedule: e.target.value })
                 }
                 placeholder="Schedule"
-                className="text-black-900"
+                className="px-3 py-2 rounded-md border bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark
+                border-brd-primary dark:border-brd-primary-dark"
               />
 
               <input
@@ -188,7 +192,8 @@ export default function Resources() {
                   setForm({ ...form, semester: e.target.value })
                 }
                 placeholder="Semester"
-                className="text-black-900"
+                className="px-3 py-2 rounded-md border bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark
+                border-brd-primary dark:border-brd-primary-dark"
               />
             </div>
 
@@ -206,7 +211,7 @@ export default function Resources() {
 
       {selectedClass && (
         <div className="fixed inset-0 bg-black/45 flex justify-center items-center z-50">
-          <div className="p-6 w-96 flex flex-col gap-3 border bg-gray-100 dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
+          <div className="p-6 w-96 flex flex-col gap-3 border bg-primary  dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
             <div className="flex justify-between items-center w-full">
               <h2 className="font-semibold text-lg">Class Details</h2>
               <button onClick={() => setSelectedClass(null)}>
@@ -242,7 +247,7 @@ export default function Resources() {
 
       {classToDelete && (
         <div className="fixed inset-0 bg-black/45 flex justify-center items-center z-50">
-          <div className="p-6 w-96 flex flex-col gap-4 border bg-gray-100 dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
+          <div className="p-6 w-96 flex flex-col gap-4 border bg-primary  dark:bg-primary-dark border-brd-primary dark:border-brd-primary-dark rounded-lg">
             <div className="flex justify-between items-center w-full">
               <h2 className="font-semibold text-lg">Delete Class</h2>
               <button onClick={() => setClassToDelete(null)}>
@@ -274,7 +279,7 @@ export default function Resources() {
       )}
 
       <div className="border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark mt-0.5">
-        <div className="flex justify-between items-center font-bold text-2xl w-full text-black-900 border-b border-brd-primary dark:border-brd-primary-dark pb-3">
+        <div className="flex justify-between items-center font-bold text-2xl w-full text-txt-primary dark:text-txt-primary-dark border-b border-brd-primary dark:border-brd-primary-dark pb-3">
           Your Classes
           <button
             className="cursor-pointer"
@@ -289,7 +294,7 @@ export default function Resources() {
             <div
               key={item.resource_id || item.id || index}
               onClick={() => setSelectedClass(item)}
-              className="relative mt-4 p-2 rounded-lg w-full h-32 bg-[#D9D9D9] flex items-center justify-center text-center font-semibold text-lg cursor-pointer hover:shadow-md"
+              className="relative mt-4 p-2 rounded-lg w-full h-32 bg-secondary dark:bg-secondary-dark flex items-center justify-center text-center font-semibold text-lg cursor-pointer hover:shadow-md"
             >
               <button
                 className="absolute top-2 right-2 z-10"
@@ -311,8 +316,10 @@ export default function Resources() {
         <div className="flex flex-col">
           <div className="font-bold text-2xl">Documents</div>
           <div className="flex gap-2 mt-4 ml-1">
-            <div className="border rounded-md h-full p-4 cursor-pointer"></div>
-            <div className="border rounded-md h-full p-4 cursor-pointer"></div>
+            <div className="border rounded-md h-full p-4 cursor-pointer bg-secondary dark:bg-secondary-dark
+              border-brd-primary dark:border-brd-primary-dark"></div>
+            <div className="border rounded-md h-full p-4 cursor-pointer bg-secondary dark:bg-secondary-dark
+              border-brd-primary dark:border-brd-primary-dark"></div>
           </div>
         </div>
 
@@ -321,8 +328,10 @@ export default function Resources() {
         <div className="flex flex-col">
           <div className="font-bold mt-4 text-2xl">Videos</div>
           <div className="flex gap-2 mt-3 ml-1">
-            <div className="border rounded-md h-full p-4 cursor-pointer"></div>
-            <div className="border rounded-md h-full p-4 cursor-pointer"></div>
+            <div className="border rounded-md h-full p-4 cursor-pointer bg-secondary dark:bg-secondary-dark
+              border-brd-primary dark:border-brd-primary-dark"></div>
+            <div className="border rounded-md h-full p-4 cursor-pointer bg-secondary dark:bg-secondary-dark
+              border-brd-primary dark:border-brd-primary-dark"></div>
           </div>
         </div>
       </div>

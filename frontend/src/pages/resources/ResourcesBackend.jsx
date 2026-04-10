@@ -26,7 +26,7 @@
 //                 onChange={(e) => setForm({...form, class_name: e.target.value})
 //                 } 
 //                 placeholder="Class Name" 
-//                 className="font-bold text-2xl text-black-900"/>
+//                 className="font-bold text-2xl text-txt-primary dark:text-txt-primary-dark"/>
 
 //             <div className="flex flex-col gap-1 mb-3">
 //                 <input type="text"
@@ -35,7 +35,7 @@
 //                         setForm({...form, description: e.target.value})
 //                     }
 //                     placeholder="Description"
-//                     className="text-black-900"/>
+//                     className="text-txt-primary dark:text-txt-primary-dark"/>
 
 //                 <input type="text"
 //                     value={form.instructor}
@@ -43,7 +43,7 @@
 //                     setForm({...form, instructor: e.target.value})
 //                     }
 //                     placeholder="Instructor"
-//                     className="text-black-900"/>
+//                     className="text-txt-primary dark:text-txt-primary-dark"/>
 
 //                 <input type="text"
 //                     value={form.schedule}
@@ -51,7 +51,7 @@
 //                     setForm({...form, schedule: e.target.value})
 //                     }
 //                     placeholder="Schedule"
-//                     className="text-black-900"/>
+//                     className="text-txt-primary dark:text-txt-primary-dark"/>
 
 //                 <input type="text"
 //                     value={form.semester}
@@ -59,7 +59,7 @@
 //                     setForm({...form, semester: e.target.value})
 //                     }
 //                     placeholder="Semester"
-//                     className="text-black-900"/>
+//                     className="text-txt-primary dark:text-txt-primary-dark"/>
 //             // </div> }*/
 
 //             <div className="flex flex-col gap-3">
