@@ -34,6 +34,24 @@ export const createShelfItem = async (req, res, next) => {
   }
 };
 
+export const updateShelfItem = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { fileName } = req.body;
+    const item = await prisma.shelfItem.findUnique({ where: { id: parseInt(id) } });
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Item not found' });
+    }
+    const updated = await prisma.shelfItem.update({
+      where: { id: parseInt(id) },
+      data: { fileName }
+    });
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteShelfItem = async (req, res, next) => {
   try {
     const { id } = req.params;

@@ -28,4 +28,3 @@ dist-ssr
 
 # Database
 prisma/*.sqlite
-prisma/migrations

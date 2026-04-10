@@ -5,6 +5,7 @@ import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import api from "../../api.js";
 
+const defaultColors = ['#f2f2f2', '#171717'];
 const colorPalette = [
   '#fef08a', '#fda4af', '#a5f3fc', '#d8b4fe',
   '#bbf7d0', '#fed7aa', '#fecaca', '#e9d5ff',
@@ -35,7 +36,8 @@ export default function Note() {
   }, []);
 
   const handleAdd = () => {
-    api.createNote(' ', '#fda4af', 0)
+    const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+    api.createNote(' ', randomColor, 0)
       .then(data => {
         if (data.success) {
           setNotes([...notes, data.data]);
@@ -61,7 +63,7 @@ export default function Note() {
   const handleTogglePin = () => {
     const currentNote = notes[focusedNote];
     const newPinned = currentNote.Pinned ? 0 : 1;
-    api.updateNote(currentNote.id, currentNote.content, currentNote.color, newPinned)
+    api.updateNote(currentNote.id, currentNote.content, currentNote.color, newPinned, currentNote.title || '')
       .then(data => {
         if (data.success) {
           loadNotes().then(freshNotes => {
@@ -75,7 +77,7 @@ export default function Note() {
 
   const handleColorChange = (color) => {
     const currentNote = notes[focusedNote];
-    api.updateNote(currentNote.id, currentNote.content, color, currentNote.Pinned ? 1 : 0)
+    api.updateNote(currentNote.id, currentNote.content, color, currentNote.Pinned ? 1 : 0, currentNote.title || '')
       .then(data => {
         if (data.success) {
           setNotes(notes.map((n, i) => i === focusedNote ? { ...n, color } : n));
@@ -87,7 +89,7 @@ export default function Note() {
 
   const handleBlur = () => {
     const currentNote = notes[focusedNote];
-    api.updateNote(currentNote.id, currentNote.content, currentNote.color, currentNote.Pinned ? 1 : 0)
+    api.updateNote(currentNote.id, currentNote.content, currentNote.color, currentNote.Pinned ? 1 : 0, currentNote.title || '')
       .catch(err => console.error('Error saving note:', err));
   };
 
@@ -122,64 +124,31 @@ export default function Note() {
         </div>
       ) : (
         <div
-          className="flex-1 rounded-lg mt-2 p-2 relative"
-          style={{ backgroundColor: notes[focusedNote].color }}
+          className="flex-1 rounded-lg mt-2 p-2 flex flex-col min-h-0 transition-all duration-300 ease-in-out"
+          style={{
+            backgroundColor: notes[focusedNote].color,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)'
+          }}
         >
-          {/* Pin button */}
-          <button
-            className="absolute bottom-2 right-8 cursor-pointer text-black"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleTogglePin}
-          >
-            {notes[focusedNote]?.Pinned
-              ? <BsPinAngleFill className="h-4 w-4 hover:text-blue-500" />
-              : <BsPinAngle className="h-4 w-4 hover:text-blue-500" />
-            }
-          </button>
-
-          {/* Color picker */}
-          <div className="absolute bottom-2 right-14 flex items-center">
-            <button
-              className="cursor-pointer text-black"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setShowColorPicker(!showColorPicker)}
-            >
-              <IoColorPaletteOutline className="h-4 w-4 hover:text-blue-500" />
-            </button>
-            {showColorPicker && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => setShowColorPicker(false)}
-                />
-                <div className="absolute bottom-6 right-0 z-20 rounded-lg shadow-lg p-2 w-28 border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
-                  <div className="grid grid-cols-4 gap-1">
-                    {colorPalette.map(color => (
-                      <button
-                        key={color}
-                        className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
-                        style={{ backgroundColor: color }}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleColorChange(color)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Delete button */}
-          <button
-            className="text-black absolute bottom-2 right-2 cursor-pointer"
-            onClick={handleDelete}
-          >
-            <FaRegTrashCan className="h-4 w-4 hover:text-blue-500" />
-          </button>
+          <input
+            type="text"
+            placeholder="Add a title..."
+            className={`w-full bg-transparent resize-none outline-none font-bold text-lg border-b mb-1 pb-1  ${
+              notes[focusedNote].color === '#171717'
+                ? 'text-white border-white/30 placeholder:text-white/20'
+                : 'text-black border-black/20 placeholder:text-black/20'
+            } ${notes[focusedNote].title ? '' : 'border-transparent hover:border-black/20 focus:border-black/20'}`}
+            value={notes[focusedNote].title || ''}
+            onChange={(e) => {
+              setNotes(notes.map((n, i) =>
+                i === focusedNote ? { ...n, title: e.target.value } : n
+              ));
+            }}
+            onBlur={handleBlur}
+          />
 
           <textarea
-            className="h-full w-full bg-transparent resize-none outline-none text-black"
+            className={`flex-1 min-h-0 w-full bg-transparent resize-none outline-none ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
             value={notes[focusedNote].content}
             onChange={(e) => {
               setNotes(notes.map((n, i) =>
@@ -188,6 +157,93 @@ export default function Note() {
             }}
             onBlur={handleBlur}
           />
+
+          {/* Bottom bar */}
+          <div className="relative flex items-center mt-1">
+            {/* Page indicators */}
+            <div className="absolute inset-0 flex justify-center gap-1 items-center pointer-events-none">
+              <div className="flex gap-1 items-center pointer-events-auto">
+              {notes.length > 1 && notes.map((_, i) => (
+                <button
+                  key={i}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setFocusedNote(i)}
+                  className={`rounded-full transition-all duration-200 cursor-pointer ${
+                    notes[focusedNote].color === '#171717' ? 'bg-white' : 'bg-black'
+                  } ${i === focusedNote ? 'w-2 h-2 opacity-80' : 'w-1.5 h-1.5 opacity-30 hover:opacity-60'}`}
+                />
+              ))}
+              </div>
+            </div>
+
+            {/* Icons */}
+            <div className="ml-auto flex items-center gap-2">
+              {/* Color picker */}
+              <div className="relative flex items-center">
+                <button
+                  className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setShowColorPicker(!showColorPicker)}
+                >
+                  <IoColorPaletteOutline className="h-4 w-4 hover:text-blue-500" />
+                </button>
+                {showColorPicker && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => setShowColorPicker(false)}
+                    />
+                    <div className="absolute bottom-6 right-0 z-20 rounded-lg shadow-lg p-2 w-28 border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
+                      <div className="grid grid-cols-4 gap-1">
+                        {defaultColors.map(color => (
+                          <button
+                            key={color}
+                            className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
+                            style={{ backgroundColor: color }}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleColorChange(color)}
+                          />
+                        ))}
+                      </div>
+                      <div className="border-b border-gray-200 dark:border-gray-600 my-1.5" />
+                      <div className="grid grid-cols-4 gap-1">
+                        {colorPalette.map(color => (
+                          <button
+                            key={color}
+                            className="w-5 h-5 rounded-full border border-gray-200 hover:scale-110 transition-transform cursor-pointer"
+                            style={{ backgroundColor: color }}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleColorChange(color)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Pin button */}
+              <button
+                className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleTogglePin}
+              >
+                {notes[focusedNote]?.Pinned
+                  ? <BsPinAngleFill className="h-4 w-4 hover:text-blue-500" />
+                  : <BsPinAngle className="h-4 w-4 hover:text-blue-500" />
+                }
+              </button>
+
+              {/* Delete button */}
+              <button
+                className={`cursor-pointer ${notes[focusedNote].color === '#171717' ? 'text-white' : 'text-black'}`}
+                onClick={handleDelete}
+              >
+                <FaRegTrashCan className="h-4 w-4 hover:text-blue-500" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
