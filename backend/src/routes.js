@@ -8,11 +8,34 @@ export default function registerRoutes(app) {
 
   // Auth routes
   app.post('/api/auth/login', controllers.login);
+  app.post('/api/auth/register', controllers.register);
   app.post('/api/auth/logout', controllers.logout);
 
+<<<<<<< HEAD
+=======
+  // User routes
+  app.patch('/api/users/:id/profile', controllers.updateProfile);
+  app.patch('/api/users/:id/password', controllers.updatePassword);
+
+  // Sticky Note routes
+  app.get('/api/notes', controllers.getNotes);
+  app.post('/api/notes', controllers.createNote);
+  app.put('/api/notes/:id', controllers.updateNote);
+  app.delete('/api/notes/:id', controllers.deleteNote);
+ 
+  // Shelf routes
+  app.get('/api/shelf', controllers.getShelfItems);
+  app.post('/api/shelf', controllers.createShelfItem);
+  app.delete('/api/shelf/:id', controllers.deleteShelfItem);
+
+>>>>>>> 0647eec6ca7e704e3552bc9037248dc00fb526a9
   // Calendar Events routes
   app.get('/api/events', controllers.getEvents);
   app.post('/api/events', controllers.createEvent);
   app.put('/api/events/:id', controllers.updateEvent);
   app.delete('/api/events/:id', controllers.deleteEvent);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0647eec6ca7e704e3552bc9037248dc00fb526a9
