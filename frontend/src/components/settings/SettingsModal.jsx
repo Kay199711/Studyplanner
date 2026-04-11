@@ -66,7 +66,7 @@ export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
   
           <div className="space-y-2 text-center">
             {activeTab === 'Profile' && <ProfileTab />}
-            {activeTab === 'Preferences' && <PreferencesTab />}
+            {activeTab === 'Preferences' && <PreferencesTab isDark={isDark} setIsDark={setIsDark}/>}
           </div>
         </div>
       </div>
