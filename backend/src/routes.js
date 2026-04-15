@@ -20,7 +20,7 @@ export default function registerRoutes(app) {
   app.post('/api/notes', controllers.createNote);
   app.put('/api/notes/:id', controllers.updateNote);
   app.delete('/api/notes/:id', controllers.deleteNote);
- 
+
   // Shelf routes
   app.get('/api/shelf', controllers.getShelfItems);
   app.post('/api/shelf', controllers.createShelfItem);
@@ -33,3 +33,4 @@ export default function registerRoutes(app) {
   app.put('/api/events/:id', controllers.updateEvent);
   app.delete('/api/events/:id', controllers.deleteEvent);
 }
+
