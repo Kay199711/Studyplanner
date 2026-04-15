@@ -130,16 +130,18 @@ export default function Calendar() {
   };
 
   const toggleComplete = (id) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
+    setEvents(prev => prev.map(e =>
+      e.id === id ? { ...e, completed: !e.completed } : e
+    ));
   };
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 24 }, (_, i) => {
-    const period = i >= 12 ? 'PM' : 'AM';
-    const hour = i % 12 || 12;
-    return { label: `${hour} ${period}`, value: String(i).padStart(2, '0') };
+    const hour = i;
+    const label = to12Hr(`${String(hour).padStart(2, '0')}:00`);
+    return { hour, label };
   });
 
   const renderDayInfo = () => {
@@ -228,9 +230,14 @@ export default function Calendar() {
           const dateStr = formatDateStr(d.getFullYear(), d.getMonth(), d.getDate());
           const dayEvents = getEventsForDay(dateStr);
           return (
-            <div key={i} className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-primary dark:bg-primary-dark flex-1">
+            <div
+              key={i}
+              className="flex items-start gap-3 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 py-2 bg-primary dark:bg-primary-dark flex-1"
+            >
               <div className="w-16 shrink-0">
-                <span className="text-xs font-medium opacity-70 block">{d.toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                <span className="text-xs font-medium opacity-70 block">
+                  {d.toLocaleDateString('en-US', { weekday: 'short' })}
+                </span>
                 <span className="text-sm font-bold">{d.getDate()}</span>
               </div>
               <div className="flex-1 flex flex-wrap gap-1 items-center">
@@ -257,9 +264,9 @@ export default function Calendar() {
     return (
       <div ref={dayViewRef} className="rounded-lg border border-brd-primary dark:border-brd-primary-dark w-full flex-1 min-h-0 overflow-y-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3b82f6 transparent' }}>
         {hours.map((hour) => {
-          const event = sortedEvents.find(e => e.startTime?.startsWith(hour.value));
+          const event = sortedEvents.find(e => e.startTime?.startsWith(String(hour.hour).padStart(2, '0')));
           return (
-            <div key={hour.value} className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 h-10">
+            <div key={hour.hour} className="flex items-center gap-2 border-b border-brd-primary dark:border-brd-primary-dark last:border-b-0 px-3 h-10">
               <span className="text-xs opacity-50 w-14 shrink-0">{hour.label}</span>
               <div className="flex-1">
                 {event && (
@@ -276,85 +283,68 @@ export default function Calendar() {
   };
 
   return (
-    <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl h-full p-4 bg-primary dark:bg-primary-dark gap-3 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between w-full relative" ref={dropdownRef}>
-        <p className="font-bold text-lg">
-          {calendarView === 'month' && `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
-          {calendarView === 'week' && `Week of ${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}`}
-          {calendarView === 'day' && `${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()}`}
-        </p>
-        <div className="flex items-center gap-2">
-          <button onClick={prevPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">←</button>
-          <button onClick={nextPeriod} className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm">→</button>
-          <IoIosAddCircleOutline className="w-6 h-6 cursor-pointer hover:text-blue-500" onClick={() => setShowDropdown(prev => !prev)} />
-        </div>
-
-        {/* Add Event Dropdown */}
-        {showDropdown && (
-          <div className="absolute top-10 right-0 z-50 w-72 bg-primary dark:bg-primary-dark border border-brd-primary dark:border-brd-primary-dark rounded-lg shadow-lg p-4 flex flex-col gap-3">
-            <p className="text-sm font-semibold">Add Event</p>
-            <input
-              type="text"
-              placeholder="Event title"
-              value={newEvent.title}
-              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
-            />
-            <input
-              type="date"
-              value={newEvent.date}
-              onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
-            />
-            <div className="flex gap-2">
-              <input
-                type="time"
-                value={newEvent.startTime}
-                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
-                className="flex-1 px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
-              />
-              <input
-                type="time"
-                value={newEvent.endTime}
-                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
-                className="flex-1 px-3 py-2 text-sm rounded-md bg-secondary dark:bg-secondary-dark border border-brd-primary dark:border-brd-primary-dark focus:outline-none"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={addEvent} className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add</button>
-              <button onClick={() => setShowDropdown(false)} className="flex-1 px-3 py-2 text-sm bg-secondary dark:bg-secondary-dark rounded-md border border-brd-primary dark:border-brd-primary-dark">Cancel</button>
+    <div className="p-4 md:p-2 bg-secondary dark:bg-primary-dark">
+      <div className="flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl p-4 bg-primary dark:bg-primary-dark">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={prevPeriod} className="px-3 py-1 bg-secondary dark:bg-secondary-dark rounded hover:bg-blue-100 dark:hover:bg-blue-900">&lt;</button>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-semibold">
+              {calendarView === 'month' && `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
+              {calendarView === 'week' && `Week of ${formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())}`}
+              {calendarView === 'day' && formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())}
+            </h2>
+            <div className="flex gap-1">
+              <button onClick={() => setCalendarView('month')} className={`px-2 py-1 text-xs rounded ${calendarView === 'month' ? 'bg-blue-500 text-white' : 'bg-secondary dark:bg-secondary-dark'}`}>Month</button>
+              <button onClick={() => setCalendarView('week')} className={`px-2 py-1 text-xs rounded ${calendarView === 'week' ? 'bg-blue-500 text-white' : 'bg-secondary dark:bg-secondary-dark'}`}>Week</button>
+              <button onClick={() => setCalendarView('day')} className={`px-2 py-1 text-xs rounded ${calendarView === 'day' ? 'bg-blue-500 text-white' : 'bg-secondary dark:bg-secondary-dark'}`}>Day</button>
             </div>
           </div>
-        )}
-      </div>
-
-      {/* View Switcher */}
-      <div className="flex gap-1">
-        {['day', 'week', 'month'].map(view => (
-          <button
-            key={view}
-            onClick={() => setCalendarView(view)}
-            className={`flex-1 py-1 text-xs rounded-md capitalize border ${
-              calendarView === view
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-transparent border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark'
-            }`}
-          >
-            {view}
-          </button>
-        ))}
-      </div>
-
-      {loading && (
-        <div className="flex items-center justify-center py-8">
-          <p className="text-sm opacity-50">Loading events...</p>
+          <button onClick={nextPeriod} className="px-3 py-1 bg-secondary dark:bg-secondary-dark rounded hover:bg-blue-100 dark:hover:bg-blue-900">&gt;</button>
         </div>
-      )}
-
-      {!loading && calendarView === 'month' && renderMonthView()}
-      {!loading && calendarView === 'week' && renderWeekView()}
-      {!loading && calendarView === 'day' && renderDayView()}
+        {calendarView === 'month' && renderMonthView()}
+        {calendarView === 'week' && renderWeekView()}
+        {calendarView === 'day' && renderDayView()}
+        <div className="mt-4 flex items-center gap-2">
+          <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <IoIosAddCircleOutline />
+            Add Event
+          </button>
+          {showDropdown && (
+            <div ref={dropdownRef} className="absolute mt-2 p-3 bg-primary dark:bg-primary-dark border border-brd-primary dark:border-brd-primary-dark rounded shadow-lg z-10">
+              <input
+                type="text"
+                placeholder="Event title"
+                value={newEvent.title}
+                onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full p-2 mb-2 border border-brd-primary dark:border-brd-primary-dark rounded bg-secondary dark:bg-secondary-dark"
+              />
+              <input
+                type="date"
+                value={newEvent.date}
+                onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full p-2 mb-2 border border-brd-primary dark:border-brd-primary-dark rounded bg-secondary dark:bg-secondary-dark"
+              />
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="time"
+                  placeholder="Start time"
+                  value={newEvent.startTime}
+                  onChange={(e) => setNewEvent(prev => ({ ...prev, startTime: e.target.value }))}
+                  className="flex-1 p-2 border border-brd-primary dark:border-brd-primary-dark rounded bg-secondary dark:bg-secondary-dark"
+                />
+                <input
+                  type="time"
+                  placeholder="End time"
+                  value={newEvent.endTime}
+                  onChange={(e) => setNewEvent(prev => ({ ...prev, endTime: e.target.value }))}
+                  className="flex-1 p-2 border border-brd-primary dark:border-brd-primary-dark rounded bg-secondary dark:bg-secondary-dark"
+                />
+              </div>
+              <button onClick={addEvent} className="w-full px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add</button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
