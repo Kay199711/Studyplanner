@@ -101,13 +101,6 @@ class ApiClient {
     });
   }
 
-  async updateShelfItem(id, fileName) {
-    return this.request(`/api/shelf/${id}`, {
-      method: 'PATCH',
-      body: { fileName },
-    });
-  }
-
   async deleteShelfItem(id) {
     return this.request(`/api/shelf/${id}`, { method: 'DELETE' });
   }
@@ -117,17 +110,17 @@ class ApiClient {
     return this.request('/api/notes');
   }
 
-  async createNote(content, color, pinned = 0, title = '') {
+  async createNote(content, color, pinned = 0) {
     return this.request('/api/notes', {
       method: 'POST',
-      body: { title, content, color, pinned },
+      body: { content, color, pinned },
     });
   }
 
-  async updateNote(id, content, color, pinned, title) {
+  async updateNote(id, content, color, pinned) {
     return this.request(`/api/notes/${id}`, {
       method: 'PUT',
-      body: { title, content, color, Pinned: pinned },
+      body: { content, color, Pinned: pinned },
     });
   }
 
@@ -140,10 +133,10 @@ class ApiClient {
     return this.request('/api/events');
   }
 
-  async createEvent(title, start_date, end_date, all_day = false, description = null) {
+  async createEvent(title, start_date, end_date, all_day = false, description = null, color = 'blue') {
     return this.request('/api/events', {
       method: 'POST',
-      body: { title, start_date, end_date, all_day, description },
+      body: { title, start_date, end_date, all_day, description, color },
     });
   }
 
