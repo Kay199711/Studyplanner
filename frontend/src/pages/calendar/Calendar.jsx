@@ -2,7 +2,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import api from '../../api.js';
 import './Calendar.css';
 
 const COLORS = [
@@ -23,10 +24,30 @@ export default function Calendar() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
 
+  useEffect(() => {
+    api.getEvents().then(data => {
+      setEvents(data.map(e => {
+        const color = COLORS.find(c => c.id === e.color) ?? COLORS[0];
+        return {
+          id: e.event_id,
+          title: e.title,
+          start: e.start_date,
+          allDay: e.all_day,
+          extendedProps: { description: e.description, color },
+        };
+      }));
+    }).catch(err => console.error('Failed to load events:', err));
+  }, []);
+
   const handleDatesSet = (dateInfo) => {
     const date = dateInfo.view.currentStart;
-    setMonthYear(date.toLocaleString('default', { month: 'long', year: 'numeric' }));
-    setActiveView(dateInfo.view.type);
+    const viewType = dateInfo.view.type;
+    if (viewType === 'timeGridDay') {
+      setMonthYear(date.toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+    } else {
+      setMonthYear(date.toLocaleString('default', { month: 'long', year: 'numeric' }));
+    }
+    setActiveView(viewType);
   };
 
   const handleToday = () => {
@@ -38,20 +59,36 @@ export default function Calendar() {
     setActiveView(view);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title || !form.date) return;
     const start = form.time ? `${form.date}T${form.time}` : form.date;
-    const color = COLORS.find(c => c.id === form.color) ?? COLORS[0];
-    setEvents(prev => [...prev, {
-      id: Math.random().toString(36).slice(2),
-      title: form.title,
-      start,
-      allDay: !form.time,
-      extendedProps: { description: form.description, color },
-    }]);
+    const allDay = !form.time;
+    try {
+      const created = await api.createEvent(form.title, start, start, allDay, form.description || null, form.color);
+      const color = COLORS.find(c => c.id === created.color) ?? COLORS[0];
+      setEvents(prev => [...prev, {
+        id: created.event_id,
+        title: created.title,
+        start: created.start_date,
+        allDay: created.all_day,
+        extendedProps: { description: created.description, color },
+      }]);
+    } catch (err) {
+      console.error('Failed to create event:', err);
+    }
     setForm(EMPTY_FORM);
     setShowModal(false);
+  };
+
+  const handleEventClick = async (info) => {
+    if (!window.confirm(`Delete "${info.event.title}"?`)) return;
+    try {
+      await api.deleteEvent(info.event.id);
+      setEvents(prev => prev.filter(e => e.id !== info.event.id));
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    }
   };
 
   const renderEvent = (info) => {
@@ -92,7 +129,7 @@ export default function Calendar() {
               onClick={() => setShowModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
             >
-              <span className="text-lg leading-none">+</span> Add Task
+              <span className="text-lg leading-none">+</span> Add Event
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -135,6 +172,7 @@ export default function Calendar() {
             headerToolbar={{ left: '', center: '', right: '' }}
             events={events}
             eventContent={renderEvent}
+            eventClick={handleEventClick}
             datesSet={handleDatesSet}
             editable={true}
             selectable={true}
@@ -227,7 +265,7 @@ export default function Calendar() {
                   type="submit"
                   className="px-4 py-2 text-sm rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors"
                 >
-                  Add Task
+                  Add Event
                 </button>
               </div>
             </form>

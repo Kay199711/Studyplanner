@@ -133,10 +133,10 @@ class ApiClient {
     return this.request('/api/events');
   }
 
-  async createEvent(title, start_date, end_date, all_day = false, description = null) {
+  async createEvent(title, start_date, end_date, all_day = false, description = null, color = 'blue') {
     return this.request('/api/events', {
       method: 'POST',
-      body: { title, start_date, end_date, all_day, description },
+      body: { title, start_date, end_date, all_day, description, color },
     });
   }
 
