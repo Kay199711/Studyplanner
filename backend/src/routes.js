@@ -24,6 +24,7 @@ export default function registerRoutes(app) {
   // Shelf routes
   app.get('/api/shelf', controllers.getShelfItems);
   app.post('/api/shelf', controllers.createShelfItem);
+  app.patch('/api/shelf/:id', controllers.updateShelfItem);
   app.delete('/api/shelf/:id', controllers.deleteShelfItem);
 
   // Calendar Events routes
