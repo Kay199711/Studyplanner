@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MdOutlineTimer, MdOutlineFlag, MdOutlineAccessTime, MdOutlineCoffee,
          MdOutlineCalendarToday, MdLocalFireDepartment, MdMenuBook, MdOutlineWatchLater,
          MdFullscreen, MdFullscreenExit, MdMusicNote, MdMusicOff } from 'react-icons/md';
+import api from '../../api.js';
 
 // timer modes 
 const MODES = {
@@ -101,10 +102,17 @@ export default function StudyTimer() {
   const [studySeconds, setStudySeconds]   = useState(0);
   const [breakSeconds, setBreakSeconds]   = useState(0);
 
-  const sessionsWeek = 24;
-  const weekMinutes  = 390;
-  const streak       = 7;
-  const [dailyGoal, setDailyGoal] = useState(5);
+  // Weekly/streak stats — populated from the API on mount
+  const [sessionsWeek, setSessionsWeek] = useState(0);
+  const [weekMinutes,  setWeekMinutes]  = useState(0);
+  const [streak,       setStreak]       = useState(0);
+  const [bestTime,     setBestTime]     = useState('2–4 PM');
+  const [dailyGoal,    setDailyGoal]    = useState(5);
+
+  // Queues a completed session to be persisted via API (set inside the interval, consumed by an effect)
+  const [sessionToLog, setSessionToLog] = useState(null);
+  // Tracks whether the initial render has passed so the dailyGoal effect skips the first run
+  const dailyGoalMountRef = useRef(false);
 
   const startAmbient = () => {
     if (audioRef.current) return;
@@ -165,6 +173,44 @@ export default function StudyTimer() {
     setPhaseChangeSound(null);
   }, [phaseChangeSound]);
 
+  // Load today's stats and persisted settings from the API on mount
+  useEffect(() => {
+    Promise.all([api.getStudyStats(), api.getStudySettings()])
+      .then(([statsRes, settingsRes]) => {
+        const { today, week, streak: s, bestTime: bt } = statsRes.data;
+        setSessionsToday(today.sessions);
+        setStudySeconds(today.studySeconds);
+        setBreakSeconds(today.breakSeconds);
+        setSessionsWeek(week.sessions);
+        setWeekMinutes(week.minutes);
+        setStreak(s);
+        setBestTime(bt);
+        setDailyGoal(settingsRes.data.dailyGoal);
+      })
+      .catch(() => {}); // keep local defaults if backend is unreachable
+  }, []);
+
+  // Persist a completed session to the backend whenever the interval queues one
+  useEffect(() => {
+    if (!sessionToLog) return;
+    api.logStudySession(
+      sessionToLog.subject,
+      sessionToLog.durationSeconds,
+      sessionToLog.isBreak,
+      sessionToLog.mode,
+    ).catch(() => {});
+    setSessionToLog(null);
+  }, [sessionToLog]);
+
+  // Save dailyGoal to the backend on every change, skipping the initial render
+  useEffect(() => {
+    if (!dailyGoalMountRef.current) {
+      dailyGoalMountRef.current = true;
+      return;
+    }
+    api.updateStudySettings(dailyGoal).catch(() => {});
+  }, [dailyGoal]);
+
   const activeDuration =
     mode === 'custom'   ? customMins * 60 + customSecs :
     mode === 'pomodoro' ? (
@@ -188,6 +234,7 @@ export default function StudyTimer() {
     const longBreakSecs = pomLongBreakMins * 60;
     const snapshotDuration = activeDuration;
     const snapshotIsBreak  = isBreakMode;
+    const snapshotSubject  = subject; // capture subject at interval-creation time
 
     const completedRef = { current: false };
 
@@ -204,6 +251,7 @@ export default function StudyTimer() {
               setSessionsToday(s => s + 1);
               setStudySeconds(t => t + studySecs);
               setPhaseChangeSound('studyEnd');
+              setSessionToLog({ subject: snapshotSubject, durationSeconds: studySecs, isBreak: false, mode: 'pomodoro' });
               if (newCount % 4 === 0) {
                 setPomodoroCount(0);
                 setPomodoroPhase('longBreak');
@@ -214,8 +262,10 @@ export default function StudyTimer() {
                 return breakSecs;
               }
             } else {
-              setBreakSeconds(t => t + (pomodoroPhase === 'break' ? breakSecs : longBreakSecs));
+              const breakDuration = pomodoroPhase === 'break' ? breakSecs : longBreakSecs;
+              setBreakSeconds(t => t + breakDuration);
               setPhaseChangeSound('breakEnd');
+              setSessionToLog({ subject: snapshotSubject, durationSeconds: breakDuration, isBreak: true, mode: 'pomodoro' });
               setPomodoroPhase('study');
               return studySecs;
             }
@@ -224,9 +274,11 @@ export default function StudyTimer() {
             setPhaseChangeSound('studyEnd');
             if (snapshotIsBreak) {
               setBreakSeconds(t => t + snapshotDuration);
+              setSessionToLog({ subject: snapshotSubject, durationSeconds: snapshotDuration, isBreak: true, mode });
             } else {
               setSessionsToday(s => s + 1);
               setStudySeconds(t => t + snapshotDuration);
+              setSessionToLog({ subject: snapshotSubject, durationSeconds: snapshotDuration, isBreak: false, mode });
             }
             return 0;
           }
@@ -658,7 +710,7 @@ export default function StudyTimer() {
 
               <div className="rounded-xl bg-secondary dark:bg-secondary-dark p-3 flex flex-col gap-1">
                 <MdOutlineWatchLater className="w-4 h-4 text-blue-500" />
-                <p className="text-base font-semibold mt-1">2–4 PM</p>
+                <p className="text-base font-semibold mt-1">{bestTime}</p>
                 <p className="text-xs opacity-50 uppercase tracking-wide">Best Time</p>
               </div>
 

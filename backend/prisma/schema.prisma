@@ -47,3 +47,17 @@ model CalendarEvent {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model StudySession {
+  id              Int      @id @default(autoincrement())
+  subject         String
+  durationSeconds Int
+  isBreak         Boolean  @default(false)
+  mode            String
+  completedAt     DateTime @default(now())
+}
+
+model StudySettings {
+  id        Int @id @default(1)
+  dailyGoal Int @default(5)
+}

@@ -157,6 +157,29 @@ class ApiClient {
   async deleteEvent(id) {
     return this.request(`/api/events/${id}`, { method: 'DELETE' });
   }
+
+  // Study Timer
+  async logStudySession(subject, durationSeconds, isBreak, mode) {
+    return this.request('/api/study/sessions', {
+      method: 'POST',
+      body: { subject, durationSeconds, isBreak, mode },
+    });
+  }
+
+  async getStudyStats() {
+    return this.request('/api/study/stats');
+  }
+
+  async getStudySettings() {
+    return this.request('/api/study/settings');
+  }
+
+  async updateStudySettings(dailyGoal) {
+    return this.request('/api/study/settings', {
+      method: 'PATCH',
+      body: { dailyGoal },
+    });
+  }
 }
 
 export default new ApiClient();
