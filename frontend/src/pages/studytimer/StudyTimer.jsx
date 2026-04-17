@@ -1,377 +1,34 @@
-import { useState, useEffect, useRef } from 'react';
 import { MdOutlineTimer, MdOutlineFlag, MdOutlineAccessTime, MdOutlineCoffee,
          MdOutlineCalendarToday, MdLocalFireDepartment, MdMenuBook, MdOutlineWatchLater,
          MdFullscreen, MdFullscreenExit, MdMusicNote, MdMusicOff } from 'react-icons/md';
-import api from '../../api.js';
-
-// timer modes 
-const MODES = {
-  study:     { label: 'Study (25m)',      seconds: 25 * 60 },
-  break:     { label: 'Break (5m)',       seconds: 5  * 60 },
-  longBreak: { label: 'Long Break (15m)', seconds: 15 * 60 },
-  deepWork:  { label: 'Deep Work (50m)',  seconds: 50 * 60 },
-  pomodoro:  { label: 'Pomodoro',         seconds: 25 * 60 },
-  custom:    { label: 'Custom',           seconds: 0        },
-};
-
-// default subjects selection
-const SUBJECTS = ['Biology', 'Math', 'History', 'Chemistry', 'English', 'Physics'];
-
-// Ring around timer
-const RING_RADIUS = 160;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
-// different color modes for pomodoro phases
-const RING_COLOR = {
-  study:     '#3B82F6',
-  break:     '#22C55E',
-  longBreak: '#F59E0B',
-  deepWork:  '#8B5CF6',
-  pomodoro:  '#3B82F6',
-  custom:    '#EC4899',
-};
-
-const playChime = (type) => {
-  try {
-    const ctx = new (window.AudioContext || window['webkitAudioContext'])();
-    const createTone = (freq, startTime, duration) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, startTime);
-      gain.gain.setValueAtTime(0, startTime);
-      gain.gain.linearRampToValueAtTime(0.25, startTime + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-      osc.start(startTime);
-      osc.stop(startTime + duration);
-    };
-    if (type === 'studyEnd') {
-      createTone(880, ctx.currentTime,        0.6);
-      createTone(660, ctx.currentTime + 0.35, 0.9);
-    } else {
-      createTone(660, ctx.currentTime,        0.6);
-      createTone(880, ctx.currentTime + 0.35, 0.9);
-    }
-  } catch (_) {}
-};
-
-// Looping brown ambient noise in focus mode
-const createBrownNoiseBuffer = (ctx) => {
-  const bufferSize = ctx.sampleRate * 4;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  let lastOut = 0;
-  for (let i = 0; i < bufferSize; i++) {
-    const white = Math.random() * 2 - 1;
-    data[i] = (lastOut + (0.02 * white)) / 1.02;
-    lastOut = data[i];
-    data[i] *= 3.5;
-  }
-  return buffer;
-};
+import { useTimer, MODES, SUBJECTS, RING_RADIUS, RING_CIRCUMFERENCE } from '../../context/TimerContext';
 
 const numInputClass =
   'w-14 text-center text-sm font-mono font-bold rounded-md border border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark text-txt-primary dark:text-txt-primary-dark py-1 outline-none';
 
 export default function StudyTimer() {
-  const [mode, setMode]           = useState('study');
-  const [timeLeft, setTimeLeft]   = useState(MODES.study.seconds);
-  const [isRunning, setIsRunning] = useState(false);
-  const [subject, setSubject]     = useState('Biology');
+  const {
+    mode, timeLeft, isRunning, setIsRunning, setTimeLeft,
+    subject, setSubject,
+    customMins, customSecs,
+    pomodoroPhase, pomodoroCount,
+    pomStudyMins, pomBreakMins, pomLongBreakMins,
+    focusMode, setFocusMode,
+    musicEnabled, setMusicEnabled,
+    sessionsToday, setSessionsToday, studySeconds, setStudySeconds,
+    breakSeconds, setBreakSeconds,
+    sessionsWeek, weekMinutes, streak, bestTime,
+    dailyGoal, setDailyGoal,
+    activeDuration, ringColor, ringOffset, pomodoroLabel,
+    handleModeChange, handleCustomChange, handlePomDurationChange, skipPhase,
+    formatTime, formatDuration,
+  } = useTimer();
 
-  const [customMins, setCustomMins] = useState(25);
-  const [customSecs, setCustomSecs] = useState(0);
-
-
-  const [pomodoroPhase, setPomodoroPhase] = useState('study');
-  const [pomodoroCount, setPomodoroCount] = useState(0);
-
-  const [pomStudyMins,     setPomStudyMins]     = useState(25);
-  const [pomBreakMins,     setPomBreakMins]     = useState(5);
-  const [pomLongBreakMins, setPomLongBreakMins] = useState(15);
-  
-  const [phaseChangeSound, setPhaseChangeSound] = useState(null);
-
-  const [focusMode,    setFocusMode]    = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(false);
-  const audioRef = useRef(null); 
-
-  const [sessionsToday, setSessionsToday] = useState(0);
-  const [studySeconds, setStudySeconds]   = useState(0);
-  const [breakSeconds, setBreakSeconds]   = useState(0);
-
-  // Weekly/streak stats — populated from the API on mount
-  const [sessionsWeek, setSessionsWeek] = useState(0);
-  const [weekMinutes,  setWeekMinutes]  = useState(0);
-  const [streak,       setStreak]       = useState(0);
-  const [bestTime,     setBestTime]     = useState('2–4 PM');
-  const [dailyGoal,    setDailyGoal]    = useState(5);
-
-  // Queues a completed session to be persisted via API (set inside the interval, consumed by an effect)
-  const [sessionToLog, setSessionToLog] = useState(null);
-  // Tracks whether the initial render has passed so the dailyGoal effect skips the first run
-  const dailyGoalMountRef = useRef(false);
-
-  const startAmbient = () => {
-    if (audioRef.current) return;
-    try {
-      const ctx = new (window.AudioContext || window['webkitAudioContext'])();
-      const buffer = createBrownNoiseBuffer(ctx);
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 350;
-
-      const gainNode = ctx.createGain();
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 2);
-
-      source.connect(filter);
-      filter.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      source.start();
-
-      audioRef.current = { ctx, source, gainNode };
-    } catch (_) {}
-  };
-
-  // Fades out ambient audio 
-  const stopAmbient = () => {
-    if (!audioRef.current) return;
-    const { gainNode, source, ctx } = audioRef.current;
-    audioRef.current = null;
-    try {
-      const now = ctx.currentTime;
-      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-      gainNode.gain.linearRampToValueAtTime(0, now + 1.5);
-      setTimeout(() => {
-        try { source.stop(); ctx.close(); } catch (_) {}
-      }, 1600);
-    } catch (_) {}
-  };
-
-  // Start or stop ambient audio 
-  useEffect(() => {
-    if (focusMode && musicEnabled) {
-      startAmbient();
-    } else {
-      stopAmbient();
-    }
-  }, [focusMode, musicEnabled]);
-
-  useEffect(() => () => stopAmbient(), []);
-
-  // audio queue when finishing pomodoro phase
-  useEffect(() => {
-    if (!phaseChangeSound) return;
-    playChime(phaseChangeSound);
-    setPhaseChangeSound(null);
-  }, [phaseChangeSound]);
-
-  // Load today's stats and persisted settings from the API on mount
-  useEffect(() => {
-    Promise.all([api.getStudyStats(), api.getStudySettings()])
-      .then(([statsRes, settingsRes]) => {
-        const { today, week, streak: s, bestTime: bt } = statsRes.data;
-        setSessionsToday(today.sessions);
-        setStudySeconds(today.studySeconds);
-        setBreakSeconds(today.breakSeconds);
-        setSessionsWeek(week.sessions);
-        setWeekMinutes(week.minutes);
-        setStreak(s);
-        setBestTime(bt);
-        setDailyGoal(settingsRes.data.dailyGoal);
-      })
-      .catch(() => {}); // keep local defaults if backend is unreachable
-  }, []);
-
-  // Persist a completed session to the backend whenever the interval queues one
-  useEffect(() => {
-    if (!sessionToLog) return;
-    api.logStudySession(
-      sessionToLog.subject,
-      sessionToLog.durationSeconds,
-      sessionToLog.isBreak,
-      sessionToLog.mode,
-    ).catch(() => {});
-    setSessionToLog(null);
-  }, [sessionToLog]);
-
-  // Save dailyGoal to the backend on every change, skipping the initial render
-  useEffect(() => {
-    if (!dailyGoalMountRef.current) {
-      dailyGoalMountRef.current = true;
-      return;
-    }
-    api.updateStudySettings(dailyGoal).catch(() => {});
-  }, [dailyGoal]);
-
-  const activeDuration =
-    mode === 'custom'   ? customMins * 60 + customSecs :
-    mode === 'pomodoro' ? (
-      pomodoroPhase === 'study'     ? pomStudyMins     * 60 :
-      pomodoroPhase === 'break'     ? pomBreakMins     * 60 :
-                                      pomLongBreakMins * 60
-    ) :
-    MODES[mode].seconds;
-
-  const ringColor = mode === 'pomodoro' ? RING_COLOR[pomodoroPhase] : RING_COLOR[mode];
-
-  const isBreakMode = mode === 'break' || mode === 'longBreak'
-    || (mode === 'pomodoro' && pomodoroPhase !== 'study');
-
-
-  useEffect(() => {
-    if (!isRunning) return;
-
-    const studySecs     = pomStudyMins     * 60;
-    const breakSecs     = pomBreakMins     * 60;
-    const longBreakSecs = pomLongBreakMins * 60;
-    const snapshotDuration = activeDuration;
-    const snapshotIsBreak  = isBreakMode;
-    const snapshotSubject  = subject; // capture subject at interval-creation time
-
-    const completedRef = { current: false };
-
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 0) return 0;
-        if (prev <= 1) {
-          if (completedRef.current) return 0;
-          completedRef.current = true;
-          if (mode === 'pomodoro') {
-            // advance to the next phase automatically
-            if (pomodoroPhase === 'study') {
-              const newCount = pomodoroCount + 1;
-              setSessionsToday(s => s + 1);
-              setStudySeconds(t => t + studySecs);
-              setPhaseChangeSound('studyEnd');
-              setSessionToLog({ subject: snapshotSubject, durationSeconds: studySecs, isBreak: false, mode: 'pomodoro' });
-              if (newCount % 4 === 0) {
-                setPomodoroCount(0);
-                setPomodoroPhase('longBreak');
-                return longBreakSecs;
-              } else {
-                setPomodoroCount(newCount);
-                setPomodoroPhase('break');
-                return breakSecs;
-              }
-            } else {
-              const breakDuration = pomodoroPhase === 'break' ? breakSecs : longBreakSecs;
-              setBreakSeconds(t => t + breakDuration);
-              setPhaseChangeSound('breakEnd');
-              setSessionToLog({ subject: snapshotSubject, durationSeconds: breakDuration, isBreak: true, mode: 'pomodoro' });
-              setPomodoroPhase('study');
-              return studySecs;
-            }
-          } else {
-            setIsRunning(false);
-            setPhaseChangeSound('studyEnd');
-            if (snapshotIsBreak) {
-              setBreakSeconds(t => t + snapshotDuration);
-              setSessionToLog({ subject: snapshotSubject, durationSeconds: snapshotDuration, isBreak: true, mode });
-            } else {
-              setSessionsToday(s => s + 1);
-              setStudySeconds(t => t + snapshotDuration);
-              setSessionToLog({ subject: snapshotSubject, durationSeconds: snapshotDuration, isBreak: false, mode });
-            }
-            return 0;
-          }
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, mode, pomodoroPhase, pomodoroCount,
-      pomStudyMins, pomBreakMins, pomLongBreakMins,
-      activeDuration, isBreakMode]);
-
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    setIsRunning(false);
-    setPomodoroPhase('study');
-    setPomodoroCount(0);
-    const duration =
-      newMode === 'custom'   ? customMins * 60 + customSecs :
-      newMode === 'pomodoro' ? pomStudyMins * 60 :
-      MODES[newMode].seconds;
-    setTimeLeft(duration);
-  };
-
-  const handleCustomChange = (mins, secs) => {
-    setCustomMins(mins);
-    setCustomSecs(secs);
-    if (!isRunning) setTimeLeft(mins * 60 + secs);
-  };
-
-  // Update a pomodoro phase 
-  const handlePomDurationChange = (phase, mins) => {
-    const clamped = Math.min(99, Math.max(1, Number(mins)));
-    if (phase === 'study') {
-      setPomStudyMins(clamped);
-      if (pomodoroPhase === 'study' && !isRunning) setTimeLeft(clamped * 60);
-    } else if (phase === 'break') {
-      setPomBreakMins(clamped);
-      if (pomodoroPhase === 'break' && !isRunning) setTimeLeft(clamped * 60);
-    } else {
-      setPomLongBreakMins(clamped);
-      if (pomodoroPhase === 'longBreak' && !isRunning) setTimeLeft(clamped * 60);
-    }
-  };
-
-  // Manually skip the current pomodoro phase
-  const skipPhase = () => {
-    setIsRunning(false);
-    if (pomodoroPhase === 'study') {
-      playChime('studyEnd');
-      const newCount = pomodoroCount + 1;
-      if (newCount % 4 === 0) {
-        setPomodoroCount(0);
-        setPomodoroPhase('longBreak');
-        setTimeLeft(pomLongBreakMins * 60);
-      } else {
-        setPomodoroCount(newCount);
-        setPomodoroPhase('break');
-        setTimeLeft(pomBreakMins * 60);
-      }
-    } else {
-      playChime('breakEnd');
-      setPomodoroPhase('study');
-      setTimeLeft(pomStudyMins * 60);
-    }
-  };
-
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
-
-  const formatDuration = (secs) => {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    return `${m}m`;
-  };
-
-  const ringOffset = activeDuration > 0
-    ? RING_CIRCUMFERENCE * (1 - timeLeft / activeDuration)
-    : 0;
-
-  const pomodoroLabel =
-    pomodoroPhase === 'study'     ? `Study · Session ${pomodoroCount + 1} of 4` :
-    pomodoroPhase === 'break'     ? `Short Break · ${pomodoroCount} of 4 done` :
-    `Long Break · Cycle complete!`;
+  // ─── Center panel (shared between normal and focus layouts) ────────────────
 
   const centerContent = (
     <>
-      {/* header with focus mode  */}
+      {/* Panel header with focus mode toggle */}
       <div className="flex items-center justify-between pb-2 mb-2 border-b border-brd-primary dark:border-brd-primary-dark w-full">
         <p className="font-bold">Timer</p>
         <button
@@ -385,7 +42,7 @@ export default function StudyTimer() {
         </button>
       </div>
 
-      {/* Mode selector dropdown */}
+      {/* Mode selector */}
       <select
         value={mode}
         onChange={e => handleModeChange(e.target.value)}
@@ -396,6 +53,7 @@ export default function StudyTimer() {
         ))}
       </select>
 
+      {/* Custom duration inputs */}
       {mode === 'custom' && (
         <div className="flex items-center gap-3 text-txt-primary dark:text-txt-primary-dark">
           <div className="flex flex-col items-center">
@@ -420,7 +78,7 @@ export default function StudyTimer() {
         </div>
       )}
 
-      {/* Pomodoro phase duration config, only visible in pomodoro mode */}
+      {/* Pomodoro phase duration config */}
       {mode === 'pomodoro' && (
         <div className="w-full grid grid-cols-3 gap-2 text-txt-primary dark:text-txt-primary-dark">
           {[
@@ -444,10 +102,9 @@ export default function StudyTimer() {
         </div>
       )}
 
-      {/* Circular progress ring and countdown clock */}
+      {/* Circular progress ring + countdown clock */}
       <div className="relative flex items-center justify-center" style={{ width: 360, height: 360 }}>
         <svg width="360" height="360" className="absolute">
-          {/* Background ring */}
           <circle
             cx="180" cy="180" r={RING_RADIUS}
             fill="none" stroke="currentColor" strokeWidth="8"
@@ -466,7 +123,6 @@ export default function StudyTimer() {
           />
         </svg>
 
-        {/* Clock display and pomodoro session indicators */}
         <div className="relative flex flex-col items-center gap-3">
           <span className="text-8xl font-mono font-bold tabular-nums text-txt-primary dark:text-txt-primary-dark">
             {formatTime(timeLeft)}
@@ -495,6 +151,7 @@ export default function StudyTimer() {
         </div>
       </div>
 
+      {/* Timer controls */}
       <div className="flex gap-3 items-center">
         <button
           onClick={() => setIsRunning(r => !r)}
@@ -547,10 +204,11 @@ export default function StudyTimer() {
     </>
   );
 
+  // ─── Page layout ────────────────────────────────────────────────────────────
+
   return (
     <div className="h-full p-4 flex flex-col overflow-hidden">
 
-      {/* Page header hidden in focus mode*/}
       {!focusMode && (
         <h1 className="text-xl font-semibold mb-4 flex items-center gap-2 text-txt-primary dark:text-txt-primary-dark">
           <MdOutlineTimer className="w-6 h-6" />
@@ -558,7 +216,6 @@ export default function StudyTimer() {
         </h1>
       )}
 
-      {/* Focus mode: centered single-column layout */}
       {focusMode ? (
         <div className="flex-1 flex items-center justify-center overflow-hidden">
           <div className="bg-primary dark:bg-primary-dark rounded-xl p-4 border-2 border-brd-primary dark:border-brd-primary-dark flex flex-col items-center gap-4 overflow-auto w-full max-w-lg">
@@ -566,13 +223,10 @@ export default function StudyTimer() {
           </div>
         </div>
       ) : (
-        // Normal mode: three-column grid — Progress | Timer | Stats
         <div className="flex-1 grid grid-cols-3 gap-4 overflow-hidden">
 
           {/* Left column: Today's Progress */}
           <div className="bg-primary dark:bg-primary-dark rounded-xl p-4 border-2 border-brd-primary dark:border-brd-primary-dark flex flex-col gap-4 overflow-auto">
-
-            {/* Progress panel header with reset button and running status badge */}
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-brd-primary dark:border-brd-primary-dark">
               <p className="font-bold">Today's Progress</p>
               <div className="flex items-center gap-2">
@@ -613,7 +267,6 @@ export default function StudyTimer() {
               </p>
             </div>
 
-            {/* Visual progress bar  */}
             <div className="flex gap-2">
               {Array.from({ length: dailyGoal }).map((_, i) => (
                 <div
@@ -625,7 +278,6 @@ export default function StudyTimer() {
               ))}
             </div>
 
-            {/* Stat cards */}
             <div className="grid grid-cols-2 gap-2 text-txt-primary dark:text-txt-primary-dark">
               <div className="rounded-xl bg-secondary dark:bg-secondary-dark p-3 flex flex-col gap-1">
                 <MdOutlineFlag className="w-4 h-4 text-blue-500" />
@@ -671,9 +323,7 @@ export default function StudyTimer() {
               <p className="font-bold">Quick Stats</p>
             </div>
 
-            {/* Stat cards: weekly sessions, streak, active subject, and best study time */}
             <div className="grid grid-cols-2 gap-2 text-txt-primary dark:text-txt-primary-dark">
-
               <div className="rounded-xl bg-secondary dark:bg-secondary-dark p-3 flex flex-col gap-1">
                 <MdOutlineCalendarToday className="w-4 h-4 text-blue-500" />
                 <p className="text-base font-semibold mt-1">{sessionsWeek}</p>
@@ -681,7 +331,6 @@ export default function StudyTimer() {
                 <p className="text-xs opacity-60">{Math.floor(weekMinutes / 60)}h {weekMinutes % 60}min</p>
               </div>
 
-              {/* Streak card — color shifts from blue → yellow → orange as streak grows */}
               <div className="rounded-xl bg-secondary dark:bg-secondary-dark p-3 flex flex-col gap-1">
                 <MdLocalFireDepartment className={`w-4 h-4 ${
                   streak >= 7 ? 'text-orange-400' :
@@ -713,7 +362,6 @@ export default function StudyTimer() {
                 <p className="text-base font-semibold mt-1">{bestTime}</p>
                 <p className="text-xs opacity-50 uppercase tracking-wide">Best Time</p>
               </div>
-
             </div>
           </div>
 

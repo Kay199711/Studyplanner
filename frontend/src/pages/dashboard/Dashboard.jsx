@@ -3,11 +3,13 @@ import Note from "../dashboard/Note";
 import Shelf from "../dashboard/Shelf";
 import Todo from "../dashboard/Todo";
 import Calendar from "../dashboard/Calendar";
+import TimerWidget from "../dashboard/TimerWidget";
 
 export default function Dashboard() {
   const { visible } = useOutletContext();
 
-  const showMiddle = visible.note || visible.shelf;
+  // Middle column shows if any of these are visible
+  const showMiddle = visible.note || visible.shelf || visible.timer;
 
   const gridClass =
     visible.todo && showMiddle && visible.calendar ? "grid-cols-3" :
@@ -31,6 +33,7 @@ export default function Dashboard() {
 
         {showMiddle && (
           <div className="h-full flex flex-col gap-3 overflow-hidden">
+            {visible.timer && <TimerWidget />}
             {visible.note && <Note />}
             {visible.shelf && <Shelf />}
           </div>

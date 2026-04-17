@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { TimerProvider } from './context/TimerContext';
 import ProtectedRoute from './middleware/ProtectedRoute';
 import Dashboard from './pages/dashboard/Dashboard';
 import Calendar from './pages/calendar/Calendar';
@@ -37,7 +38,11 @@ function App() {
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute requireAuth={true} />}>
-            <Route element={<Layout isDark={isDark} setIsDark={setIsDark} />}>
+            <Route element={
+              <TimerProvider>
+                <Layout isDark={isDark} setIsDark={setIsDark} />
+              </TimerProvider>
+            }>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/timer" element={<StudyTimer />} />
               <Route path="/calendar" element={<Calendar />} />

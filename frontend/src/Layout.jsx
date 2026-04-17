@@ -11,7 +11,7 @@ export default function Layout({ isDark, setIsDark }) {
   const sidebarRef = useRef(null);
 
   // Customize state lifted here so the topbar button can control it
-  const [visible, setVisible] = useState({todo: true, note: true, shelf: true, calendar: true});
+  const [visible, setVisible] = useState({todo: true, note: true, shelf: true, calendar: true, timer: false});
 
   const toggleSidebar = () => {
     const panel = sidebarRef.current;

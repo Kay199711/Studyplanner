@@ -114,7 +114,7 @@ export default function Shelf() {
   };
 
   return (
-    <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 p-4 bg-primary dark:bg-primary-dark overflow-hidden">
+    <div className="relative flex flex-col border-2 border-brd-primary dark:border-brd-primary-dark rounded-xl flex-1 min-h-0 p-4 bg-primary dark:bg-primary-dark overflow-hidden">
 
       {/* Header */}
       <div className="flex justify-between items-center pb-2 mb-2 border-b border-brd-primary dark:border-brd-primary-dark mx-2">

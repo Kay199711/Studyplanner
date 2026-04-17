@@ -5,6 +5,7 @@ const ALL_WIDGETS = [
   { id: "note",     label: "Sticky Note" },
   { id: "shelf",    label: "Shelf" },
   { id: "calendar", label: "Calendar" },
+  { id: "timer",    label: "Study Timer" },
 ];
 
 export default function CustomizeDashboard({ visible, setVisible }) {

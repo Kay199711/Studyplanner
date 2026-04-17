@@ -94,7 +94,7 @@ export default function Note() {
   };
 
   return (
-    <div className="flex flex-col border-2 rounded-xl flex-1 p-4 border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
+    <div className="flex flex-col border-2 rounded-xl flex-1 min-h-0 p-4 border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
       <div className="flex justify-between items-center mb-2 pb-2 border-b border-brd-primary dark:border-brd-primary-dark">
         <p className="font-bold">Sticky Note</p>
         <div className="flex gap-2 items-center">
