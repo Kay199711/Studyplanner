@@ -12,7 +12,7 @@ import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
 import { PiBooks } from "react-icons/pi";
 
-export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar }) {
+export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen, sidebarRef, toggleSidebar , visible, setVisible}) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -201,6 +201,8 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
         onClose={() => setIsSettingsOpen(false)}
         isDark={isDark}
         setIsDark={setIsDark}
+        visible={visible}
+        setVisible={setVisible}
       />
     </Panel>
   );

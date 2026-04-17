@@ -35,6 +35,8 @@ export default function Layout({ isDark, setIsDark }) {
           setSidebarOpen={setSidebarOpen}
           sidebarRef={sidebarRef}
           toggleSidebar={toggleSidebar}
+          visible={visible}
+          setVisible={setVisible}
         />
 
         <Separator className="w-0.5 bg-brd-primary dark:bg-brd-primary-dark hover:bg-blue-500 active:bg-blue-600 cursor-col-resize" />
