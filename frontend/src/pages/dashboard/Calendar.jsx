@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IoIosAddCircleOutline } from "react-icons/io";
 import api from '../../api.js';
 
@@ -31,6 +32,7 @@ const mapEvent = (e) => ({
 });
 
 export default function Calendar() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -288,7 +290,10 @@ export default function Calendar() {
         <div className="flex items-center justify-between mb-4">
           <button onClick={prevPeriod} className="px-3 py-1 bg-secondary dark:bg-secondary-dark rounded hover:bg-blue-100 dark:hover:bg-blue-900">&lt;</button>
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">
+            <h2
+              className="text-lg font-semibold cursor-pointer hover:opacity-60 transition-opacity"
+              onClick={() => navigate('/calendar')}
+            >
               {calendarView === 'month' && `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
               {calendarView === 'week' && `Week of ${formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())}`}
               {calendarView === 'day' && formatDateStr(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())}

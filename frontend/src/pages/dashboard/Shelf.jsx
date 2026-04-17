@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { MdDriveFolderUpload } from "react-icons/md";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
@@ -20,6 +21,7 @@ const getVideoId = (url) => {
 };
 
 export default function Shelf() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalView, setModalView] = useState('choose');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -118,7 +120,7 @@ export default function Shelf() {
 
       {/* Header */}
       <div className="flex justify-between items-center pb-2 mb-2 border-b border-brd-primary dark:border-brd-primary-dark mx-2">
-        <p className="font-bold">Shelf</p>
+        <button onClick={() => navigate('/resources')} className="font-bold hover:opacity-60 transition-opacity cursor-pointer">Shelf</button>
         <button onClick={() => setIsModalOpen(true)}>
           <MdDriveFolderUpload className="w-6 h-6 cursor-pointer hover:text-blue-500" />
         </button>

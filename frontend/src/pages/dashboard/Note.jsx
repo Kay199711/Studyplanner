@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
@@ -13,6 +14,7 @@ const colorPalette = [
 ];
 
 export default function Note() {
+  const navigate = useNavigate();
   const [focusedNote, setFocusedNote] = useState(0);
   const [notes, setNotes] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -96,7 +98,7 @@ export default function Note() {
   return (
     <div className="flex flex-col border-2 rounded-xl flex-1 min-h-0 p-4 border-brd-primary dark:border-brd-primary-dark bg-primary dark:bg-primary-dark">
       <div className="flex justify-between items-center mb-2 pb-2 border-b border-brd-primary dark:border-brd-primary-dark">
-        <p className="font-bold">Sticky Note</p>
+        <button onClick={() => navigate('/resources')} className="font-bold hover:opacity-60 transition-opacity cursor-pointer">Sticky Note</button>
         <div className="flex gap-2 items-center">
           <button
             className="px-2 py-1 rounded-md border border-brd-primary dark:border-brd-primary-dark hover:bg-secondary dark:hover:bg-secondary-dark text-sm disabled:opacity-30 disabled:cursor-not-allowed"
