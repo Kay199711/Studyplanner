@@ -5,6 +5,7 @@ import ProtectedRoute from './middleware/ProtectedRoute';
 import Dashboard from './pages/dashboard/Dashboard';
 import Calendar from './pages/calendar/Calendar';
 import Resources from './pages/resources/Resources';
+import StudyTimer from './pages/studytimer/StudyTimer';
 import Landing from './pages/landing/Landing';
 import Layout from './Layout';
 
@@ -38,6 +39,7 @@ function App() {
           <Route element={<ProtectedRoute requireAuth={true} />}>
             <Route element={<Layout isDark={isDark} setIsDark={setIsDark} />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/timer" element={<StudyTimer />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/resources" element={<Resources />} />
             </Route>

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import SettingsModal from './settings/SettingsModal';
 import ProfileButton from './ProfileButton';
 
-import { MdOutlineCalendarMonth } from "react-icons/md";
+import { MdOutlineCalendarMonth, MdOutlineTimer } from "react-icons/md";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
@@ -77,10 +77,21 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 Dashboard
               </Link>
               <Link
+                to="/timer"
+                className={`flex items-center gap-2 px-3 py-2 rounded-md ${
+                  isActive('/timer')
+                    ? 'bg-hover dark:bg-hover-dark'
+                    : 'hover:bg-hover hover:dark:bg-hover-dark'
+                }`}
+              >
+                <MdOutlineTimer className='w-5 h-5 text-icon dark:text-icon-dark'/>
+                Study Timer
+              </Link>
+              <Link
                 to="/calendar"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md ${
-                  isActive('/calendar') 
-                    ? 'bg-hover dark:bg-hover-dark' 
+                  isActive('/calendar')
+                    ? 'bg-hover dark:bg-hover-dark'
                     : 'hover:bg-hover hover:dark:bg-hover-dark'
                 }`}
               >
@@ -132,6 +143,16 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 }`}
                 >
                   <LuLayoutDashboard className='w-6 h-6 text-icon dark:text-icon-dark' />
+                </Link>
+                <Link to="/timer"
+                  className={`p-1.5 rounded-md cursor-pointer ${
+                    isActive('/timer')
+                    ? 'bg-hover dark:bg-hover-dark'
+                    : 'hover:bg-hover hover:dark:bg-hover-dark'
+                  }`}
+                  title="Study Timer"
+                >
+                  <MdOutlineTimer className='w-6 h-6 text-icon dark:text-icon-dark' />
                 </Link>
                 <Link to="/calendar"
                   className={`p-1.5 rounded-md cursor-pointer ${
