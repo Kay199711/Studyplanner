@@ -21,14 +21,16 @@ export default function Note() {
   const loadNotes = () => {
     return api.getNotes()
       .then(data => {
-        setLoaded(true);
-        if (data.success && data.data.length > 0) {
-          setNotes(data.data);
-          return data.data;
-        }
+        const nextNotes = data.success ? data.data : [];
+        setNotes(nextNotes);
+        return nextNotes;
+      })
+      .catch(err => {
+        console.error('Error loading notes:', err);
+        setNotes([]);
         return [];
       })
-      .catch(err => console.error('Error loading notes:', err));
+      .finally(() => setLoaded(true));
   };
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function Note() {
     api.createNote(' ', randomColor, 0)
       .then(data => {
         if (data.success) {
-          setNotes([...notes, data.data]);
+          setNotes((prev) => [...prev, data.data]);
           setFocusedNote(notes.length);
         }
       })

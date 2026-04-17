@@ -48,6 +48,17 @@ model CalendarEvent {
   updatedAt   DateTime @updatedAt
 }
 
+model Resource {
+  id          Int      @id @default(autoincrement())
+  className   String
+  description String   @default("")
+  instructor  String   @default("")
+  schedule    String   @default("")
+  semester    String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model StudySession {
   id              Int      @id @default(autoincrement())
   subject         String

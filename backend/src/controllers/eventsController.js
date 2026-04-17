@@ -1,146 +1,125 @@
 import prisma from '../config/database.js';
 
+const mapEvent = (event) => ({
+  event_id: event.id,
+  title: event.title,
+  description: event.description,
+  start_date: event.startDate,
+  end_date: event.endDate,
+  all_day: Boolean(event.allDay),
+  created_at: event.createdAt,
+  updated_at: event.updatedAt,
+});
+
 // ---- GET ALL EVENTS ----
-export const getEvents = async (req, res) => {
+export const getEvents = async (req, res, next) => {
   try {
-    const events = await prisma.$queryRaw`
-      SELECT * FROM "CalendarEvent" ORDER BY startDate ASC
-    `;
-    const mapped = events.map(e => ({
-      event_id: e.id,
-      title: e.title,
-      description: e.description,
-      start_date: e.startDate,
-      end_date: e.endDate,
-      all_day: e.allDay === 1,
-      created_at: e.createdAt,
-      updated_at: e.updatedAt,
-    }));
-    res.status(200).json(mapped);
-  } catch (err) {
-    console.error('GET EVENTS ERROR:', err.message);
-    res.status(500).json({ message: 'Failed to fetch events', error: err.message });
+    const events = await prisma.calendarEvent.findMany({
+      orderBy: { startDate: 'asc' },
+    });
+
+    res.status(200).json(events.map(mapEvent));
+  } catch (error) {
+    next(error);
   }
 };
 
 // ---- CREATE EVENT ----
-export const createEvent = async (req, res) => {
+export const createEvent = async (req, res, next) => {
   const { title, description, start_date, end_date, all_day } = req.body;
 
   if (!title || !start_date || !end_date) {
     return res.status(400).json({ message: 'title, start_date, and end_date are required' });
   }
 
-  if (new Date(end_date) < new Date(start_date)) {
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    return res.status(400).json({ message: 'start_date and end_date must be valid dates' });
+  }
+
+  if (endDate < startDate) {
     return res.status(400).json({ message: 'end_date cannot be before start_date' });
   }
 
   try {
-    const id = crypto.randomUUID();
-    const allDayInt = all_day ? 1 : 0;
-    const now = new Date().toISOString();
-
-    await prisma.$executeRaw`
-  INSERT INTO "CalendarEvent" (id, title, description, startDate, endDate, allDay, createdAt, updatedAt)
-  VALUES (${id}, ${title}, ${description ?? null}, ${new Date(start_date)}, ${new Date(end_date)}, ${allDayInt}, ${new Date(now)}, ${new Date(now)})
-    `;
-
-    const rows = await prisma.$queryRaw`
-      SELECT * FROM "CalendarEvent" WHERE id = ${id}
-    `;
-    const e = rows[0];
-    res.status(201).json({
-      event_id: e.id,
-      title: e.title,
-      description: e.description,
-      start_date: e.startDate,
-      end_date: e.endDate,
-      all_day: e.allDay === 1,
-      created_at: e.createdAt,
-      updated_at: e.updatedAt,
+    const event = await prisma.calendarEvent.create({
+      data: {
+        title,
+        description: description ?? null,
+        startDate,
+        endDate,
+        allDay: Boolean(all_day),
+      },
     });
-  } catch (err) {
-    console.error('CREATE EVENT ERROR:', err.message);
-    res.status(500).json({ message: 'Failed to create event', error: err.message });
+
+    res.status(201).json(mapEvent(event));
+  } catch (error) {
+    next(error);
   }
 };
 
 // ---- UPDATE EVENT ----
-export const updateEvent = async (req, res) => {
+export const updateEvent = async (req, res, next) => {
   const { id } = req.params;
   const { title, description, start_date, end_date, all_day } = req.body;
 
   try {
-    const existing = await prisma.$queryRaw`
-      SELECT * FROM "CalendarEvent" WHERE id = ${id}
-    `;
-    if (existing.length === 0) {
+    const existing = await prisma.calendarEvent.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const current = existing[0];
+    const nextStart = start_date !== undefined ? new Date(start_date) : existing.startDate;
+    const nextEnd = end_date !== undefined ? new Date(end_date) : existing.endDate;
 
-    const newStart = start_date ?? current.startDate;
-    const newEnd = end_date ?? current.endDate;
-    if (new Date(newEnd) < new Date(newStart)) {
+    if (Number.isNaN(nextStart.getTime()) || Number.isNaN(nextEnd.getTime())) {
+      return res.status(400).json({ message: 'start_date and end_date must be valid dates' });
+    }
+
+    if (nextEnd < nextStart) {
       return res.status(400).json({ message: 'end_date cannot be before start_date' });
     }
 
-    const newTitle = title ?? current.title;
-    const newDescription = description ?? current.description;
-    const newAllDay = all_day !== undefined ? (all_day ? 1 : 0) : current.allDay;
-    const now = new Date().toISOString();
-
-    await prisma.$executeRaw`
-      UPDATE "CalendarEvent"
-      SET title = ${newTitle},
-          description = ${newDescription},
-          startDate = ${newStart},
-          endDate = ${newEnd},
-          allDay = ${newAllDay},
-          updatedAt = ${now}
-      WHERE id = ${id}
-    `;
-
-    const updated = await prisma.$queryRaw`
-      SELECT * FROM "CalendarEvent" WHERE id = ${id}
-    `;
-    const e = updated[0];
-    res.status(200).json({
-      event_id: e.id,
-      title: e.title,
-      description: e.description,
-      start_date: e.startDate,
-      end_date: e.endDate,
-      all_day: e.allDay === 1,
-      created_at: e.createdAt,
-      updated_at: e.updatedAt,
+    const updated = await prisma.calendarEvent.update({
+      where: { id },
+      data: {
+        title: title ?? existing.title,
+        description: description !== undefined ? description : existing.description,
+        startDate: nextStart,
+        endDate: nextEnd,
+        allDay: all_day !== undefined ? Boolean(all_day) : existing.allDay,
+      },
     });
-  } catch (err) {
-    console.error('UPDATE EVENT ERROR:', err.message);
-    res.status(500).json({ message: 'Failed to update event', error: err.message });
+
+    res.status(200).json(mapEvent(updated));
+  } catch (error) {
+    next(error);
   }
 };
 
 // ---- DELETE EVENT ----
-export const deleteEvent = async (req, res) => {
+export const deleteEvent = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const existing = await prisma.$queryRaw`
-      SELECT * FROM "CalendarEvent" WHERE id = ${id}
-    `;
-    if (existing.length === 0) {
+    const existing = await prisma.calendarEvent.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    await prisma.$executeRaw`
-      DELETE FROM "CalendarEvent" WHERE id = ${id}
-    `;
+    await prisma.calendarEvent.delete({
+      where: { id },
+    });
 
     res.status(200).json({ message: 'Event deleted successfully' });
-  } catch (err) {
-    console.error('DELETE EVENT ERROR:', err.message);
-    res.status(500).json({ message: 'Failed to delete event', error: err.message });
+  } catch (error) {
+    next(error);
   }
 };

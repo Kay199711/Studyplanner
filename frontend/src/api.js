@@ -158,6 +158,29 @@ class ApiClient {
     return this.request(`/api/events/${id}`, { method: 'DELETE' });
   }
 
+  // Resources
+  async getResources() {
+    return this.request('/api/resources');
+  }
+
+  async createResources(class_name, description, instructor, schedule, semester) {
+    return this.request('/api/resources', {
+      method: 'POST',
+      body: { class_name, description, instructor, schedule, semester },
+    });
+  }
+
+  async updateResources(id, fields) {
+    return this.request(`/api/resources/${id}`, {
+      method: 'PUT',
+      body: fields,
+    });
+  }
+
+  async deleteResources(id) {
+    return this.request(`/api/resources/${id}`, { method: 'DELETE' });
+  }
+
   // Study Timer
   async logStudySession(subject, durationSeconds, isBreak, mode) {
     return this.request('/api/study/sessions', {

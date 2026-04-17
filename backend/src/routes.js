@@ -33,10 +33,15 @@ export default function registerRoutes(app) {
   app.put('/api/events/:id', controllers.updateEvent);
   app.delete('/api/events/:id', controllers.deleteEvent);
 
+  // Resources routes
+  app.get('/api/resources', controllers.getResources);
+  app.post('/api/resources', controllers.createResource);
+  app.put('/api/resources/:id', controllers.updateResource);
+  app.delete('/api/resources/:id', controllers.deleteResource);
+
   // Study timer routes
   app.post('/api/study/sessions', controllers.logSession);
   app.get('/api/study/stats', controllers.getStats);
   app.get('/api/study/settings', controllers.getStudySettings);
   app.patch('/api/study/settings', controllers.updateStudySettings);
 }
-

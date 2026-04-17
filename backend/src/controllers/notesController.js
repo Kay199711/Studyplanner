@@ -1,4 +1,16 @@
 import prisma from '../config/database.js';
+
+const normalizePinned = (value) => {
+    if (typeof value === 'boolean') return value ? 1 : 0;
+    if (value === 1 || value === '1') return 1;
+    return 0;
+};
+
+const mapNote = (note) => ({
+    ...note,
+    Pinned: note.Pinned === 1 || note.Pinned === true,
+});
+
 export const getNotes = async (req, res, next) => {
 
     try {
@@ -8,10 +20,7 @@ export const getNotes = async (req, res, next) => {
                 { createdAt: 'desc' }  
             ]
         });
-        const notesWithBooleans = notes.map(note => ({
-            ...note,
-            Pinned: note.Pinned === 1
-        }));
+        const notesWithBooleans = notes.map(mapNote);
         res.json({success: true, data: notesWithBooleans});
     } catch (error) {
         next(error);
@@ -21,25 +30,23 @@ export const createNote = async (req, res, next) => {
     
     try {
         const { title, content, color, pinned } = req.body;
+        const safeContent = typeof content === 'string' ? content : '';
+        const safeColor = color || '#fef08a';
 
-        if (!content) {
-            return res.status(400).json({ success: false, message: 'Content is required'});
-        }
-
-        if (color && !/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        if (safeColor && !/^#[0-9A-Fa-f]{6}$/.test(safeColor)) {
             return res.status(400).json({ success: false, message: 'Invalid color format. Must be hex like #FFAA88' });
         }
 
-        const createNote = await prisma.note.create({
+        const createdNote = await prisma.note.create({
             data: {
                 title: title || '',
-                content: content,
-                color: color,
-                Pinned: pinned || 0
+                content: safeContent,
+                color: safeColor,
+                Pinned: normalizePinned(pinned),
             }
 
         });
-        res.status(201).json({ success: true, data: createNote });
+        res.status(201).json({ success: true, data: mapNote(createdNote) });
     } catch (error) {
         next(error);
     }
@@ -59,16 +66,17 @@ export const updateNote = async (req, res, next) => {
         if (color && !/^#[0-9A-Fa-f]{6}$/.test(color)) {
             return res.status(400).json({ success: false, message: 'Invalid color format. Must be hex like #FFAA88' });
         }
+        const nextPinned = Pinned ?? pinned;
         const updatedNote = await prisma.note.update({
             where: { id: parseInt(id) },
             data: {
                 title: title !== undefined ? title : note.title,
-                content: content,
-                color: color,
-                Pinned: Pinned ?? pinned
+                content: content !== undefined ? content : note.content,
+                color: color !== undefined ? color : note.color,
+                Pinned: nextPinned !== undefined ? normalizePinned(nextPinned) : note.Pinned
             }
         })
-        res.json({ success: true, data: updatedNote });
+        res.json({ success: true, data: mapNote(updatedNote) });
     } catch (error) {
         next(error);
     }

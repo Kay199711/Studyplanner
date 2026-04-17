@@ -17,4 +17,18 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Register all routes
 registerRoutes(app);
 
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    error: err.message || 'Internal server error',
+  });
+});
+
 export default app;
