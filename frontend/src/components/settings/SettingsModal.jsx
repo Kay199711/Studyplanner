@@ -3,7 +3,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import ProfileTab from './ProfileTab.jsx';
 import PreferencesTab from './PreferencesTab.jsx';
 
-export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
+export default function SettingsModal({ isOpen, onClose, isDark, setIsDark, visible, setVisible }) {
   const [activeTab, setActiveTab] = useState('Profile');
   
   useEffect(() => {
@@ -66,7 +66,14 @@ export default function SettingsModal({ isOpen, onClose, isDark, setIsDark }) {
   
           <div className="space-y-2 text-center">
             {activeTab === 'Profile' && <ProfileTab />}
-            {activeTab === 'Preferences' && <PreferencesTab />}
+            {activeTab === 'Preferences' && (
+              <PreferencesTab
+                isDark={isDark}
+                setIsDark={setIsDark}
+                visible={visible}
+                setVisible={setVisible}
+              />
+            )}
           </div>
         </div>
       </div>
