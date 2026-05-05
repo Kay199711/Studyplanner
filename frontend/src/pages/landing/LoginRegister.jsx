@@ -77,7 +77,7 @@ export default function LoginRegister() {
           {isLogin ? 'Welcome back' : 'Create an account'}
         </h2>
         <p className="mt-1 text-sm text-icon dark:text-icon-dark">
-          {isLogin ? 'Sign in to your account' : 'Get started with Study Planner'}
+          {isLogin ? 'Sign in to your account' : 'Get started with Studify'}
         </p>
       </div>
 

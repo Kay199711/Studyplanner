@@ -47,7 +47,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
           {sidebarOpen && (
             <div className="flex items-center gap-2">
             <BiBookReader className='w-5 h-5 text-icon dark:text-icon-dark'/>
-            <h1 className="font-medium">Study Planner</h1>
+            <h1 className="font-medium">Studify</h1>
           </div>
           )}
           {!sidebarOpen && <BiBookReader className='w-6 h-6 text-icon dark:text-icon-dark justify-center' />}

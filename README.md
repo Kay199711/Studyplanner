@@ -1,4 +1,4 @@
-# Study planner - INIT BUILD project
+# Studify - INIT BUILD project
 
 ### Tech stack
 - **Frontend**: React + Tailwind CSS

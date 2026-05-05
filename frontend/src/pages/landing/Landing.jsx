@@ -28,7 +28,7 @@ export default function Landing() {
                     {/* Logo/Icon */}
                     <div className="flex items-center gap-3 mb-8">
                         <BiBookReader className="w-12 h-12 text-icon dark:text-icon-dark" />
-                        <h1 className="text-5xl font-bold [text-shadow:0_2px_12px_rgba(255,255,255,0.55)]">Study Planner</h1>
+                        <h1 className="text-5xl font-bold [text-shadow:0_2px_12px_rgba(255,255,255,0.55)]">Studify</h1>
                     </div>
 
                     {/* Tagline */}
@@ -44,7 +44,7 @@ export default function Landing() {
                     {/* Mobile Logo - only shown on small screens */}
                     <div className="flex md:hidden items-center justify-center gap-2 mb-8">
                         <BiBookReader className="w-8 h-8 text-icon dark:text-icon-dark" />
-                        <h1 className="text-3xl font-bold [text-shadow:0_2px_10px_rgba(255,255,255,0.55)]">Study Planner</h1>
+                        <h1 className="text-3xl font-bold [text-shadow:0_2px_10px_rgba(255,255,255,0.55)]">Studify</h1>
                     </div>
 
                     <LoginRegister />
