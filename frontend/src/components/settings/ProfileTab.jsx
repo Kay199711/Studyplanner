@@ -67,7 +67,7 @@ export default function ProfileTab() {
     <div className="space-y-6 text-left">
       {/* Profile Section */}
       <div>
-        <h3 className="text-lg font-semibold text-txt-primary dark:text-txt-primary-dark mb-3 pb-2 border-b border-brd-primary dark:border-brd-primary-dark">
+        <h3 className="text-xl font-bold text-txt-primary dark:text-txt-primary-dark mb-3 pb-2 border-b border-brd-primary dark:border-brd-primary-dark">
           Profile
         </h3>
         <div className="space-y-3">

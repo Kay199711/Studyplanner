@@ -101,23 +101,12 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
             </nav>
 
             <nav className="border-t border-brd-primary dark:border-brd-primary-dark pt-2 space-y-2">
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className="w-full text-left flex items-center gap-1 px-3 py-2 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-                aria-label="Toggle dark mode"
-                title="Toggle Dark Mode"
-              >
-                {isDark ? (
-                  <HiOutlineSun className="w-5 h-5 text-icon dark:text-icon-dark" />
-                ) : (
-                  <HiOutlineMoon className="w-5 h-5 text-icon dark:text-icon-dark" />
-                )} Toggle Theme
-              </button>
-
-              <ProfileButton
+              
+                <ProfileButton
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onLogout={handleLogout}
               />
+
             </nav>
           </div>
          ) : (
@@ -153,18 +142,8 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                 </Link>
                 </nav>
 
-                <nav className= 'border-t border-brd-primary dark:border-brd-primary-dark pt-2 flex flex-col gap-2 items-center mb-4'>
-                  <button 
-                    title = "Toggle Dark Mode"
-                    className="p-1.5 rounded-md hover:bg-hover hover:dark:bg-hover-dark cursor-pointer"
-                    onClick={() => setIsDark(!isDark)}
-                  >
-                    {isDark ? (
-                      <HiOutlineSun className='w-6 h-6 text-icon dark:text-icon-dark'/>
-                    ) : (
-                      <HiOutlineMoon className='w-6 h-6 text-icon dark:text-icon-dark'/>
-                    )}
-                  </button>
+               <nav className= 'border-t border-brd-primary dark:border-brd-primary-dark pt-2 flex flex-col gap-2 items-center mb-4'>
+                 
                   
                   <ProfileButton
                     onOpenSettings={() => setIsSettingsOpen(true)}
@@ -173,6 +152,7 @@ export default function Sidebar({ isDark, setIsDark, sidebarOpen, setSidebarOpen
                   />
                 </nav>
               </div>
+              
         )}
       </div>
       <SettingsModal
