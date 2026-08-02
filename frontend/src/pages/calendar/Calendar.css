@@ -1,0 +1,86 @@
+/* FullCalendar light mode */
+.fc .fc-day-today {
+  background-color: transparent !important;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-timegrid-slot-label-cushion,
+.fc .fc-list-event-title a {
+  color: var(--color-txt-primary);
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  border-color: var(--color-brd-primary);
+}
+
+.fc .fc-scrollgrid {
+  background-color: var(--color-primary);
+}
+
+/* FullCalendar dark mode */
+.dark .fc .fc-col-header-cell-cushion,
+.dark .fc .fc-daygrid-day-number,
+.dark .fc .fc-timegrid-slot-label-cushion,
+.dark .fc .fc-list-event-title a {
+  color: var(--color-txt-primary-dark);
+}
+
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th,
+.dark .fc-theme-standard .fc-scrollgrid {
+  border-color: var(--color-brd-primary-dark);
+}
+
+.dark .fc .fc-scrollgrid,
+.dark .fc .fc-daygrid-day,
+.dark .fc .fc-timegrid-col,
+.dark .fc .fc-col-header-cell,
+.dark .fc .fc-scrollgrid-section-header td,
+.dark .fc .fc-scrollgrid-section-header th {
+  background-color: var(--color-primary-dark);
+}
+
+.dark .fc .fc-timegrid-slot {
+  background-color: var(--color-primary-dark);
+}
+
+.dark .fc .fc-list-day-cushion {
+  background-color: var(--color-brd-primary-dark);
+}
+
+.dark .fc .fc-list-event:hover td {
+  background-color: var(--color-brd-primary-dark);
+}
+
+/* Pill-shaped translucent events */
+.fc .fc-daygrid-event,
+.fc .fc-timegrid-event .fc-event-main {
+  border-radius: 9999px !important;
+  border: none !important;
+  padding: 1px 8px !important;
+}
+
+.fc .fc-timegrid-event {
+  border-radius: 12px !important;
+  border: none !important;
+}
+
+.fc .fc-event {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.fc-custom-event {
+  width: 100%;
+  height: 100%;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

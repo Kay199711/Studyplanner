@@ -13,6 +13,7 @@ export const getEvents = async (req, res) => {
       start_date: e.startDate,
       end_date: e.endDate,
       all_day: e.allDay === 1,
+      color: e.color ?? 'blue',
       created_at: e.createdAt,
       updated_at: e.updatedAt,
     }));
@@ -25,7 +26,7 @@ export const getEvents = async (req, res) => {
 
 // ---- CREATE EVENT ----
 export const createEvent = async (req, res) => {
-  const { title, description, start_date, end_date, all_day } = req.body;
+  const { title, description, start_date, end_date, all_day, color } = req.body;
 
   if (!title || !start_date || !end_date) {
     return res.status(400).json({ message: 'title, start_date, and end_date are required' });
@@ -38,11 +39,12 @@ export const createEvent = async (req, res) => {
   try {
     const id = crypto.randomUUID();
     const allDayInt = all_day ? 1 : 0;
+    const eventColor = color ?? 'blue';
     const now = new Date().toISOString();
 
     await prisma.$executeRaw`
-  INSERT INTO "CalendarEvent" (id, title, description, startDate, endDate, allDay, createdAt, updatedAt)
-  VALUES (${id}, ${title}, ${description ?? null}, ${new Date(start_date)}, ${new Date(end_date)}, ${allDayInt}, ${new Date(now)}, ${new Date(now)})
+  INSERT INTO "CalendarEvent" (id, title, description, startDate, endDate, allDay, color, createdAt, updatedAt)
+  VALUES (${id}, ${title}, ${description ?? null}, ${new Date(start_date)}, ${new Date(end_date)}, ${allDayInt}, ${eventColor}, ${new Date(now)}, ${new Date(now)})
     `;
 
     const rows = await prisma.$queryRaw`
@@ -56,6 +58,7 @@ export const createEvent = async (req, res) => {
       start_date: e.startDate,
       end_date: e.endDate,
       all_day: e.allDay === 1,
+      color: e.color ?? 'blue',
       created_at: e.createdAt,
       updated_at: e.updatedAt,
     });
@@ -68,7 +71,7 @@ export const createEvent = async (req, res) => {
 // ---- UPDATE EVENT ----
 export const updateEvent = async (req, res) => {
   const { id } = req.params;
-  const { title, description, start_date, end_date, all_day } = req.body;
+  const { title, description, start_date, end_date, all_day, color } = req.body;
 
   try {
     const existing = await prisma.$queryRaw`
@@ -89,6 +92,7 @@ export const updateEvent = async (req, res) => {
     const newTitle = title ?? current.title;
     const newDescription = description ?? current.description;
     const newAllDay = all_day !== undefined ? (all_day ? 1 : 0) : current.allDay;
+    const newColor = color ?? current.color ?? 'blue';
     const now = new Date().toISOString();
 
     await prisma.$executeRaw`
@@ -98,6 +102,7 @@ export const updateEvent = async (req, res) => {
           startDate = ${newStart},
           endDate = ${newEnd},
           allDay = ${newAllDay},
+          color = ${newColor},
           updatedAt = ${now}
       WHERE id = ${id}
     `;
@@ -113,6 +118,7 @@ export const updateEvent = async (req, res) => {
       start_date: e.startDate,
       end_date: e.endDate,
       all_day: e.allDay === 1,
+      color: e.color ?? 'blue',
       created_at: e.createdAt,
       updated_at: e.updatedAt,
     });
